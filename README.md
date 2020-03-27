@@ -21,3 +21,4 @@ To visualize the output you can then run:
 - [ ] improve the GPS macro
 - [ ] confront spectra with published ones
 - [ ] confront spectra with those obtained by Gabriele
+- [ ] remove unused histograms (warnings)
