@@ -22,7 +22,7 @@ To visualize the output you can then run:
 - [ ] properly write this readme
 - [ ] finish diamond microdosimeter
 - [ ] add silicon microdosimeter (cfr article)
-- [x] ~~switch between the two with and `#ifdef`
+- [x] ~~switch between the two with and `#ifdef`~~
 - [ ] add a detector-agnostic region with higher precision
 - [ ] set the source position via c++
 - [ ] improve the GPS macro
