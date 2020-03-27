@@ -30,6 +30,9 @@ To visualize the output you can then run:
 - [ ] confront spectra with those obtained by Gabriele
 - [ ] remove unused histograms (warnings)
 - [ ] check why `delete analysis;` in `main.cc` causes the following error when executing a program from the command line:
+
     free(): invalid next size (fast)
     Aborted (core dumped)
+
+- [ ] track type of hadron (its Z?) via the tracking action
 
