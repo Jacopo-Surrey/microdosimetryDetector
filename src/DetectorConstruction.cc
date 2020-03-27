@@ -59,6 +59,8 @@ DetectorConstruction::~DetectorConstruction(){
 
 }
 
+#ifndef USING_SILICON
+//#ifndef USING_SILICON	// by default, build the diamond detector
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 
@@ -228,178 +230,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  
  //substrate
  //SCRIVI LE DIMENSIONI DEL SUBSTRATO
-
-/*
- 
- // Define the geometry of the diamond microdosimeter
- // mother volume of the detector components
- G4double DiaVol_x = 300*micrometer;
- G4double DiaVol_y = 240*micrometer;
- G4double DiaVol_z = 150*micrometer; 
-
- G4Box* DiaVol_box = new G4Box("DiaVol_box",DiaVol_x,DiaVol_y,DiaVol_z);
-
- G4LogicalVolume* logical_DiaVol = new G4LogicalVolume(DiaVol_box, diamond, "DiaVol_log", 0,0,0);
-
- new G4PVPlacement(0, G4ThreeVector(0,0,0), logical_DiaVol,"DiaVol_phys",
-			  logical_world, 
-			  false, 0, true);
- 
- //VacBlock for contact placement
- G4double vacblock_x = 300*um;
- G4double vacblock_y = 240*um;
- G4double vacblock_z = 0.25*um; 
-
- G4Box* vacblock_box = new G4Box("vacblock_box",vacblock_x,vacblock_y,vacblock_z);
-
- G4LogicalVolume* logical_vacblock = new G4LogicalVolume(vacblock_box, vacuum, "vacblock_log", 0,0,0);
-
- new G4PVPlacement(0, 
-	           G4ThreeVector(0,0,DiaVol_z - vacblock_z),
-		   logical_vacblock,
-	           "vacblock_phys",
-	           logical_DiaVol, 
-	           false, 
-	           0, true);
-//Bdl in DiaVol
- G4double Bdl_x = 300*micrometer;
- G4double Bdl_y = 240*micrometer;
- G4double Bdl_z = 0.69*micrometer; 
-	
- G4Box* Bdl_box = new G4Box("Bdl_box",Bdl_x,Bdl_y,Bdl_z);
-
- G4LogicalVolume* logical_Bdl = new G4LogicalVolume(Bdl_box, dopant, "Bdl_log", 0,0,0);
-
- new G4PVPlacement(0, 
-		   G4ThreeVector(0,0,DiaVol_z - Bdl_z - vacblock_z- vacblock_z),
-		   logical_Bdl,
-		   "Bdl_phys",
-	           logical_DiaVol,   //mother volume 
-                   false, 
-		   0, true);
-
- //Diamond SV
- G4double SV_x = 75*um;
- G4double SV_y = 75*um;
- G4double SV_z = 0.69*um; 
-
- G4Box* SV_box = new G4Box("SV_box",SV_x,SV_y,SV_z);
-
- G4LogicalVolume* logical_SV = new G4LogicalVolume(SV_box, diamond, "SV_log", 0,0,0);
-
- new G4PVPlacement(0, G4ThreeVector(-45*um,105*um,0*um), logical_SV,"SV_phys1",
-		    logical_Bdl,false, 0, true);
-
- new G4PVPlacement(0, G4ThreeVector(165*um,105*um,0*um), logical_SV,"SV_phys2",
-		   logical_Bdl, false, 0, true);
-
- new G4PVPlacement(0, G4ThreeVector(-45*um,-105*um,0*um),logical_SV,"SV_phys3", 
-		   logical_Bdl, false, 0, true);
-
- new G4PVPlacement(0, G4ThreeVector(165*um,-105*um,0*um),logical_SV,"SV_phys4",
-		   logical_Bdl, false, 0, true);
-
-//Al strips
-//10 nm thickness 
- G4double AlStrip_x = 240*um;
- G4double AlStrip_y = 240*um;
- G4double AlStrip_z = vacblock_z; 
-
- G4Box* AlStrip = new G4Box("AlStrip",AlStrip_x,AlStrip_y,AlStrip_z);
-
- G4LogicalVolume* logical_AlStrip = new G4LogicalVolume(AlStrip, AlContact, "AlStrip_log", 0,0,0);
-
- new G4PVPlacement(0, G4ThreeVector(60*um,0,0), logical_AlStrip, "AlStrip_phys",
-                   logical_vacblock, false, 0, true);
-
-//gold cylinder in vacblock
- G4double innerRadiusOfTheTube1 = 0.*um;
- G4double outerRadiusOfTheTube1 = 45.*um;
- G4double heightOfTheTube1 = 10*nm;
- G4double startAngleOfTheTube1 = 0.*deg;
- G4double spanningAngleOfTheTube1 = 360.*deg;
-
- G4Tubs* GoldCylinder1 = new G4Tubs("GoldCylinder1", innerRadiusOfTheTube1, 
-                 		    outerRadiusOfTheTube1,
-                 		    heightOfTheTube1,
-                 		    startAngleOfTheTube1, 
-                 		    spanningAngleOfTheTube1);
-	
- G4LogicalVolume* logical_GoldCylinder1 = new G4LogicalVolume(GoldCylinder1, AuContact, "GoldCylinder1_log", 0,0,0);
-
- new G4PVPlacement(0,G4ThreeVector(-245*um,0,-vacblock_z + heightOfTheTube1),
-	           		   logical_GoldCylinder1,
-		   		   "GoldCylinder1_phys",
-		   		   logical_vacblock, false, 0, true);
-
-//gold contacts
- G4double innerRadiusOfTheTube2 = 0.*um;
- G4double outerRadiusOfTheTube2 = 45.*um;
- G4double heightOfTheTube2 = Bdl_z;
- G4double startAngleOfTheTube2 = 0.*deg;
- G4double spanningAngleOfTheTube2 = 360.*deg;
-
- G4Tubs* GoldCylinder2 = new G4Tubs("GoldCylinder2",
-                 		    innerRadiusOfTheTube2, 
-                 		    outerRadiusOfTheTube2,
-                 		    heightOfTheTube2,
-                 		    startAngleOfTheTube2, 
-                 		    spanningAngleOfTheTube2);
-	
- G4LogicalVolume* logical_GoldCylinder2 = new G4LogicalVolume(GoldCylinder2, AuContact, "GoldCylinder2_log", 0,0,0);
-
- new G4PVPlacement(0, G4ThreeVector(-245*um,0,0), logical_GoldCylinder2, "GoldCylinder2_phys",
-		   logical_Bdl, false, 0, true);
-
-//gold cylinder in DiaVol
- G4double innerRadiusOfTheTube3 = 0.*um;
- G4double outerRadiusOfTheTube3 = 45.*um;
- G4double heightOfTheTube3 = 75.*um -heightOfTheTube2 - heightOfTheTube1 ;
- G4double startAngleOfTheTube3 = 0.*deg;
- G4double spanningAngleOfTheTube3 = 360.*deg;
-
- G4Tubs* GoldCylinder3 = new G4Tubs("GoldCylinder3",
-                 		    innerRadiusOfTheTube3, 
-                 		    outerRadiusOfTheTube3,
-                 		    heightOfTheTube3,
-                 		    startAngleOfTheTube3, 
-                 		    spanningAngleOfTheTube3);
-	
-G4LogicalVolume* logical_GoldCylinder3 = new G4LogicalVolume(GoldCylinder3, AuContact, "GoldCylinder3_log", 0,0,0);
-
-new G4PVPlacement(0, G4ThreeVector(-245*um,0,DiaVol_z - heightOfTheTube3 - Bdl_z - Bdl_z - vacblock_z- vacblock_z),
-			   	   logical_GoldCylinder3,
-			   	   "GoldCylinder3_phys",
-			   	   logical_DiaVol, 
-			   	   false, 
-			   	   0, true);
-
-// Visualisation attributes
-
-        logical_DiaVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
-	logical_Bdl -> SetVisAttributes(G4VisAttributes(G4Colour(0,255,0)));        //green
-	
-	G4VisAttributes vis_SV(G4Colour(198, 226, 255));
-	vis_SV.SetForceSolid(true);
-	logical_SV -> SetVisAttributes(vis_SV);
-        logical_vacblock -> SetVisAttributes(G4VisAttributes::GetInvisible());		
-	logical_AlStrip -> SetVisAttributes(G4VisAttributes(G4Colour(0, 255, 255)));//cyan
-	
-	G4VisAttributes vis_GoldCylinder1(G4Colour(255, 255, 0));                    
-	vis_GoldCylinder1.SetForceAuxEdgeVisible(true);
-	logical_GoldCylinder1 -> SetVisAttributes(vis_GoldCylinder1);
-	
-	G4VisAttributes vis_GoldCylinder2(G4Colour(255, 255, 0));                    
-	vis_GoldCylinder2.SetForceAuxEdgeVisible(true);
-	logical_GoldCylinder2 -> SetVisAttributes(vis_GoldCylinder2); 
-	
-	G4VisAttributes vis_GoldCylinder3(G4Colour(255, 255, 0));                    
-	vis_GoldCylinder3.SetForceAuxEdgeVisible(true);
-	logical_GoldCylinder3 -> SetVisAttributes(vis_GoldCylinder3); */
         
 return physical_world; 
 
 }
+#else	// if the flag is on, build the reference silicon instead
+G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give an error
+{
+	return 0;
+}
+#endif
 
 void DetectorConstruction::ConstructSDandField()
 {

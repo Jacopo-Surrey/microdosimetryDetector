@@ -14,6 +14,7 @@ if(WITH_GEANT4_UIVIS)
 else()
   find_package(Geant4 REQUIRED)
 endif()
+
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 #
@@ -32,6 +33,14 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #
 add_executable(myProgram main.cc ${sources} ${headers})
 target_link_libraries(myProgram ${Geant4_LIBRARIES})
+
+#----------------------------------------------------------------------------
+#???????? Enable switching between diamond detector and reference silicon
+#
+option(USE_SILICON "If ON, the reference silicon is" OFF) # Disabled by default
+if(USE_SILICON)
+	add_definitions(-DUSING_SILICON)
+endif(USE_SILICON)
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
