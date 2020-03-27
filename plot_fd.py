@@ -85,7 +85,7 @@ color = 'tab:blue'
 
 ax1.semilogx( y_bins, y_bins * f, linewidth=0.5, label="???", color=color  )
 
-ax1.set_xlabel(r'$y \,\, [keV]$')
+ax1.set_xlabel(r'$y \,\, [keV / \mu m]$')
 ax1.set_ylabel(r'$y \cdot f(y) $', color=color)
 ax1.tick_params(axis='y', labelcolor=color)
 
