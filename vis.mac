@@ -2,9 +2,7 @@
 # THE SIMULATION IS EXECUTE IN INTERACTIVE MODE
 #
 #
-/control/execute physics.mac
 /run/initialize
-/control/execute primary.mac
 # Use these open statements to open selected visualization
 #
 # Use this open statement to create an OpenGL view:
