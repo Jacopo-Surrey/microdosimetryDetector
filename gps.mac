@@ -1,0 +1,11 @@
+/gps/source/set 0
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 55. 0. -20. mm
+/gps/pos/radius 4.5 mm
+/gps/ang/type iso
+# only considered some angles to improve computation times
+/gps/ang/mintheta 170 deg
+/gps/ang/maxtheta 180 deg
+/gps/ang/minphi 0 deg
+/gps/ang/maxphi 360 deg

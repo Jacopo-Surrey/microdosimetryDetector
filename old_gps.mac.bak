@@ -1,0 +1,23 @@
+/run/initialize
+
+/gps/source/clear
+
+# add a source with given intensity
+/gps/source/add 1
+
+# shoot protons
+#/gps/particle proton
+
+# shoot carbon-12
+/gps/particle ion
+/gps/ion 6 12
+
+/gps/ene/mono 10 MeV
+/gps/direction 0 0 -1
+/gps/pos/type Volume
+/gps/pos/shape Para
+/gps/pos/centre -0.1 0.1 0.5 mm
+/gps/pos/halfx 0.05 mm
+/gps/pos/halfy 0.05 mm
+/gps/pos/halfz 0.05 mm
+/run/beamOn 500
