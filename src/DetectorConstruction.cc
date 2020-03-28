@@ -135,7 +135,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			         vacuumDensity,kStateGas,temperature,pressure);
 
  //Define volumes
- // World volume  has size 1cm
+ // World volume
  G4double worldx = 1*m /2.;  //half length!!!!
  G4double worldy = 1*m /2.;
  G4double worldz = 1*m /2.;
@@ -237,17 +237,139 @@ return physical_world;
 #else	// if the flag is on, build the reference silicon instead
 G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give an error
 {
-	return 0;
+	//Define each individual element
+	//Define Nitrogen
+	G4double A = 14.01 * g/mole;
+	G4double Z = 7;
+	G4Element* elN = new G4Element ("Nitrogen", "N", Z, A);
+
+	//Define Oxygen
+	A = 16.0 * g/mole;
+	Z = 8;
+	G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
+
+	//Define Hydrogen 
+	A = 1.01 * g/mole;
+	Z = 1;
+	G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
+
+	//Define Boron
+	A = 10.8 * g/mole;
+	Z = 5;
+	G4Element* elB = new G4Element ("Boron", "B", Z, A);
+
+	//Define Carbon
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Element* elC = new G4Element ("Carbon", "C", Z, A);
+
+	//Define Air   
+	G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
+	Air -> AddElement(elN, 70*perCent);
+	Air -> AddElement(elO, 30*perCent);
+ 
+	//Define PMMA (C502H8)
+	// NIST reference 
+	G4Material* PMMA = new G4Material("PMMA", 1.19*g/cm3, 3);
+	PMMA -> AddElement(elC, 5);
+	PMMA -> AddElement(elO, 2);
+	PMMA -> AddElement(elH, 8);
+
+	//define water
+	G4Material* water = new G4Material("water", 1*g/cm3, 2);
+	water -> AddElement(elH, 2);
+	water -> AddElement(elO, 1);
+	
+	//Define Vacuum
+	G4double vacuumDensity = 1.e-25 *g/cm3;
+	G4double pressure = 3.e-18*pascal;
+	G4double temperature = 2.73*kelvin;
+	G4Material* vacuum = new G4Material("Galactic", Z=1., A=1.01*g/mole,
+			         vacuumDensity,kStateGas,temperature,pressure);
+
+	//Define volumes
+	// World volume
+	G4double worldx = 1*m /2.;  //half length!!!!
+	G4double worldy = 0.5*m /2.;
+	G4double worldz = 0.5*m /2.;
+	
+	// World volume, containing all geometry
+	G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
+
+	G4LogicalVolume* logical_world = new G4LogicalVolume(world, Air, "world_log", 0,0,0);
+
+	//set the logical world volume invisible
+	logical_world -> SetVisAttributes(G4VisAttributes::GetInvisible());
+
+	G4VPhysicalVolume* physical_world = new G4PVPlacement(0,
+								G4ThreeVector(),
+								logical_world, 
+								"world_phys",
+								0, 
+								false, 
+								0);
+	
+	//water phantom
+	G4double phantom_x = 300.*mm /2.;
+	G4double phantom_y = 300.*mm /2.;
+	G4double phantom_z = 300.*mm /2.;
+	
+	G4Box* phantom_box = new G4Box("phantom_box", phantom_x, phantom_y, phantom_z);
+	
+	G4LogicalVolume* logical_phantom = new G4LogicalVolume(phantom_box, water, "phantom_log", 0,0,0);
+	
+	G4ThreeVector phantom_position = G4ThreeVector( phantom_x, 0, 0 );	//the phantom starts at x=0
+	
+	 new G4PVPlacement(0, phantom_position, logical_phantom,"phantom_phys",
+				logical_world, 
+				false, 0, true);
+	
+	logical_phantom -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0., 1.)));
+	
+	// smaller volume where I can lower the cuts with G4Region
+	G4double highPVol_x = 6.*mm /2.; 
+	G4double highPVol_y = 11.*mm /2.;
+	G4double highPVol_z = 11.*mm /2.;
+
+	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
+ 
+	G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, water, "highPVol_log",0,0,0);
+	
+	G4double detectorDepth = 80.*mm;	// CHANGE ME
+	
+	G4double detectorCentre_x = -phantom_x + detectorDepth + highPVol_x;
+	
+	G4ThreeVector highP_position = G4ThreeVector( detectorCentre_x , 0 , 0 );
+ 
+	new G4PVPlacement(0, highP_position, logical_highPVol,"highPVol_phys",
+				logical_phantom, 
+				false, 0, true);
+ 
+	logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0., 1.)));
+	
+	//draw the detector
+	
+	
+	//remember to add the sensitive detector below!
+	return physical_world;
 }
 #endif
 
 void DetectorConstruction::ConstructSDandField()
 {
-	G4int sensitiveVolumeToOutput = 1;
-	
-	std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
 
-	SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
-	G4SDManager::GetSDMpointer()->AddNewDetector(SD);
-	SetSensitiveDetector(outName.str(), SD);
+	#ifndef USING_SILICON
+		G4int sensitiveVolumeToOutput = 1;
+	
+		std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
+
+		SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
+		G4SDManager::GetSDMpointer()->AddNewDetector(SD);
+		SetSensitiveDetector(outName.str(), SD);
+
+	//#else
+	//	add sensitive detector to silicon
+	
+	#endif
+	
 }
