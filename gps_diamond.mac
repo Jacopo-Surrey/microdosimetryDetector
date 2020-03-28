@@ -9,3 +9,4 @@
 /gps/ang/maxtheta 180 deg
 /gps/ang/minphi 0 deg
 /gps/ang/maxphi 360 deg
+/gps/ene/mono 100 MeV

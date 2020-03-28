@@ -35,7 +35,7 @@ add_executable(myProgram main.cc ${sources} ${headers})
 target_link_libraries(myProgram ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
-#???????? Enable switching between diamond detector and reference silicon
+# Enable switching between diamond detector and reference silicon
 #
 option(USE_SILICON "If ON, the reference silicon is" OFF) # Disabled by default
 if(USE_SILICON)
@@ -48,7 +48,7 @@ endif(USE_SILICON)
 # relies on these scripts being in the current working directory.
 #
 set(radioprotection_SCRIPTS
-   vis.mac plot_fd.py gps.mac run.mac
+   vis.mac plot_fd.py run.mac
   )
 
 foreach(_script ${radioprotection_SCRIPTS})
@@ -60,7 +60,33 @@ foreach(_script ${radioprotection_SCRIPTS})
 endforeach()
 
 #----------------------------------------------------------------------------
+# Copy the appropriate GPS macro depending on the setup used
+#
+if(NOT USE_SILICON)
+	configure_file(
+		${PROJECT_SOURCE_DIR}/gps_diamond.mac
+		${PROJECT_BINARY_DIR}/gps.mac
+    		COPYONLY
+    	)
+	message("**Using diamond detector**")
+else()
+	configure_file(
+		${PROJECT_SOURCE_DIR}/gps_silicon.mac
+		${PROJECT_BINARY_DIR}/gps.mac
+    		COPYONLY
+    	)
+	message("**Using silicon detector**")
+endif()
+
+#----------------------------------------------------------------------------
+# Remove USE_SILICON from the cache, otherwise the next time you run cmake the
+# previous value would still be used (comment the following line if you want to
+# remember it instead)
+unset(USE_SILICON CACHE)
+
+#----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS myProgram DESTINATION bin)
+
 
