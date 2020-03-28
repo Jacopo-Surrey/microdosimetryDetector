@@ -3,7 +3,7 @@
 #
 
 #a variable which holds the name of the executable file to be created
-name := radioprotection
+name := myProgram
 
 #a variable that puts this into a variable that is used in the binmake.gmk file
 #(see below)
