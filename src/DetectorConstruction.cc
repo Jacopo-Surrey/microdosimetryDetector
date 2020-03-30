@@ -430,7 +430,7 @@ void DetectorConstruction::ConstructSDandField()
 {
 
 	#ifndef USING_SILICON
-		G4int sensitiveVolumeToOutput = 1;
+		G4int sensitiveVolumeToOutput = 1; // if changed, remember to change also the physical volume in SteppingAction.cc where to look for secondaries information (in the "if" condition)
 	
 		std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
 
