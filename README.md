@@ -34,4 +34,5 @@ To visualize the output you can then run:
 - [ ] check why `delete analysis;` in `main.cc` causes the following error when executing a program from the command line: `free(): invalid next size (fast)`   `Aborted (core dumped)`
 - [ ] track type of hadron (its Z?) via the tracking action
 - [ ] add a rotation matrix to the diamond detector placement, so it can be rotated changing a single variable (as it can be rotated in the lab)
-
+- [ ] modify the sensitive volume in the stepping action to always pick the active one
+- [ ] remove the if condition inside the for loop when placing the diamond SV (change how the position is calculated)
