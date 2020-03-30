@@ -68,7 +68,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
        G4double charge = (*fSecondary)[lp1] -> GetDynamicParticle() -> GetDefinition() -> GetPDGCharge();
        G4int AA = (*fSecondary)[lp1] -> GetDynamicParticle() -> GetDefinition() -> GetBaryonNumber();
           
-     if (volumeName == "SV_phys1") 
+     if (volumeName == "SV_phys_1") //change it depending on the diamond detector used
 //Testing with larger volume!
 //if (volumeName == "DiaVol_phys")
 	 {
