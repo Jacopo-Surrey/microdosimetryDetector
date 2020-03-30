@@ -49,6 +49,7 @@
 #include "G4GeometryTolerance.hh"
 #include "G4GeometryManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4NistManager.hh"
 
 DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager)
 {
@@ -205,7 +206,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  
  std::ostringstream name;
  
- G4VisAttributes SVcolour(G4Colour(198, 226, 255));
+ //prepare its colour
+ G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
  SVcolour.SetForceSolid(true);
  
  for( int i=0; i<4; i++)
@@ -235,8 +237,13 @@ return physical_world;
 
 }
 #else	// if the flag is on, build the reference silicon instead
-G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give an error
+G4VPhysicalVolume* DetectorConstruction::Construct()
 {
+	//load NIST database
+	G4NistManager* nist = G4NistManager::Instance();
+	nist->SetVerbose(1);
+
+	//MEMO: remove individual materials
 	//Define each individual element
 	//Define Nitrogen
 	G4double A = 14.01 * g/mole;
@@ -263,6 +270,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give 
 	Z = 6;
 	G4Element* elC = new G4Element ("Carbon", "C", Z, A);
 
+	//Define Silicon
+	A = 28.085 * g/mole;
+	Z = 14;
+	G4Element* elSi = new G4Element ("Silicon", "Si", Z, A);
+	
 	//Define Air   
 	G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
 	Air -> AddElement(elN, 70*perCent);
@@ -279,14 +291,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give 
 	G4Material* water = new G4Material("water", 1*g/cm3, 2);
 	water -> AddElement(elH, 2);
 	water -> AddElement(elO, 1);
-	
-	//Define Vacuum
-	G4double vacuumDensity = 1.e-25 *g/cm3;
-	G4double pressure = 3.e-18*pascal;
-	G4double temperature = 2.73*kelvin;
-	G4Material* vacuum = new G4Material("Galactic", Z=1., A=1.01*g/mole,
-			         vacuumDensity,kStateGas,temperature,pressure);
 
+	//define materials
+	G4Material* silicon = nist->FindOrBuildMaterial("G4_Si");
+	G4Material* SiO2 = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
+	
+	
 	//Define volumes
 	// World volume
 	G4double worldx = 1*m /2.;  //half length!!!!
@@ -324,9 +334,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give 
 				logical_world, 
 				false, 0, true);
 	
-	logical_phantom -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0., 1.)));
+	logical_phantom -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0.2, 0.6)));
 	
-	// smaller volume where I can lower the cuts with G4Region
+	//smaller volume where I can lower the cuts with G4Region
 	G4double highPVol_x = 6.*mm /2.; 
 	G4double highPVol_y = 11.*mm /2.;
 	G4double highPVol_z = 11.*mm /2.;
@@ -347,8 +357,65 @@ G4VPhysicalVolume* DetectorConstruction::Construct()	//UNIMPLEMENTED, will give 
  
 	logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0., 1.)));
 	
-	//draw the detector
+	// I need to set the size of the SV now, because some other parameters depend on it
+	G4double SV_thick = 25.*um /2.; 
 	
+	// PMMA
+	G4double PMMA_x = SV_thick;
+	G4double PMMA_y = 5.*mm /2.;
+	G4double PMMA_z = 5.*mm /2.;
+	
+	G4Box* PMMA_box = new G4Box("PMMA_box", PMMA_x, PMMA_y, PMMA_z);
+	
+	G4LogicalVolume* logical_PMMA = new G4LogicalVolume(PMMA_box, PMMA, "PMMA_log", 0,0,0);
+	
+	new G4PVPlacement(0, G4ThreeVector(), logical_PMMA, "PMMA_phys",
+					logical_highPVol,
+					false, 0, true);
+	
+	logical_PMMA -> SetVisAttributes(G4VisAttributes(G4Colour(0., 1., 0.)));
+	
+	// sensitive volumes 
+	G4double SV_radius = SV_thick *2;	// this is the full length, not the half lenght!
+	G4double SVspacing_ee = 10.*um;	// distance between edges of two SV
+	
+	G4Tubs* SV_cyl = new G4Tubs("SV_cyl", 0., SV_radius, SV_thick, 0., 2*M_PI*rad);
+	
+	G4LogicalVolume* logical_SV[25];	// 5x5 volumes (arbitrary number)
+	
+	G4RotationMatrix* cylRot = new G4RotationMatrix;
+	cylRot->rotateY(M_PI/2.*rad);
+	
+	G4ThreeVector SVposition;
+ 
+	std::ostringstream name;
+	
+	// prepare its colour
+	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
+	SVcolour.SetForceSolid(true);
+	
+	G4int index;
+	for(int i=-2; i<3; i++)
+	{
+		for(int j=-2; j<3; j++)
+		{
+			index = i+2 + (j+2)*5;
+			name << "SV_log_" << index;
+			logical_SV[index] = new G4LogicalVolume(SV_cyl, silicon, name.str(), 0,0,0);
+			name.str("");
+		
+			name << "SV_phys_" << index;
+			SVposition = { 0., i*SVspacing_ee + i*2.*SV_radius, j*SVspacing_ee + j*2.*SV_radius };
+			new G4PVPlacement(cylRot, SVposition, logical_SV[index], name.str(),
+						logical_PMMA,
+						false, 0, true);
+			name.str("");
+		
+			logical_SV[index] -> SetVisAttributes(SVcolour);
+		}
+	}
+	
+	// add Si02 LAYER !!!
 	
 	//remember to add the sensitive detector below!
 	return physical_world;
