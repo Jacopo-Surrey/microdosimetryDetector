@@ -193,12 +193,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
  
  // Sensitive volumes
- G4double SVspacing_cc = 500.*micrometer; //centre-centre distance
+ G4double SVspacing_ss = 200.*micrometer; //side-side distance
  G4double SVthickness = 8.*micrometer /2.;
  //G4double SVthickness = 1.*micrometer /2.;
  
  // 4 sensitive volumes
- G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.};
+ G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!
  
  G4Box* SV_box[4];
  G4LogicalVolume* logical_SV[4];
@@ -210,6 +210,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
  SVcolour.SetForceSolid(true);
  
+SVposition={-(1.5 * SVspacing_ss + 2 * SVside[2] + SVside[1]), 0, SVthickness};
  for( int i=0; i<4; i++)
  {
 		name << "SV_box_" << i;
@@ -221,13 +222,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		name.str("");
 		
 		name << "SV_phys_" << i;
-		SVposition = { -1.5 * SVspacing_cc + i * SVspacing_cc, 0, SVthickness };
 		new G4PVPlacement(0, SVposition, logical_SV[i], name.str(),
 					logical_highPVol,
 					false, 0, true);
 		name.str("");
 		
 		logical_SV[i] -> SetVisAttributes(SVcolour);
+                if (i<3)
+		{
+			SVposition[0] = SVposition[0] + SVspacing_ss+SVside[i]+SVside[i+1]; // update x-position
+		}
  }
  
  //substrate
