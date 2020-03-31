@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # in cvs each thread outputs to a different file
 # therefore I need to cycle through each thread and append them all together
 
-ntuple_name = "output_nt_102"
+ntuple_name = "output_nt_2_deposited_energy"
 
 n_threads = 4
 
@@ -77,13 +77,21 @@ f = normalize(f, y_bins)
 d = normalize(y_bins*f, y_bins)
 
 
+# save to file
+
+output_file = "analysed_spectra.csv"
+header = "y[keV/um], f(y)[um/keV], d(y)[um/keV]"
+
+np.savetxt( output_file, np.c_[ y_bins, f, d ], header=header, delimiter=',' )
+
+
 # plot
 
 fig, ax1 = plt.subplots()
 
 color = 'tab:blue'
 
-ax1.semilogx( y_bins, y_bins * f, linewidth=0.5, label="???", color=color  )
+ax1.semilogx( y_bins, y_bins * f, linewidth=0.5, color=color  )
 
 ax1.set_xlabel(r'$y \,\, [keV / \mu m]$')
 ax1.set_ylabel(r'$y \cdot f(y) $', color=color)
@@ -93,7 +101,7 @@ ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
 color = 'tab:red'
 
-ax2.semilogx( y_bins, y_bins * d, linewidth=0.5, label= r'???', color=color )
+ax2.semilogx( y_bins, y_bins * d, linewidth=0.5, color=color )
 
 ax2.set_ylabel(r'$y \cdot d(y) $', color=color)
 ax2.tick_params(axis='y', labelcolor=color)
@@ -101,7 +109,6 @@ ax2.tick_params(axis='y', labelcolor=color)
 title = tot_counts + " counts, " + str(bins_per_dec) + " bins per decade"
 fig.suptitle(title)
 
-ax1.legend(fancybox=True, framealpha=1, loc="best")
 fig.tight_layout()
 
 plt.subplots_adjust(top=0.92)

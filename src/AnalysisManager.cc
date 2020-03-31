@@ -67,19 +67,19 @@ void AnalysisManager::book()
 	manager->SetFirstNtupleId(1);
 
 	//Create Primary Energy Ntuple
-	manager -> CreateNtuple("101", "primary_energy");
+	manager -> CreateNtuple("1_primary_energy", "primary_energy");
 	fNtColId[0] = manager -> CreateNtupleDColumn("E_keV");
 	manager -> FinishNtuple();
 
 	//Create Energy Deposition within SV Ntuple
-	manager -> CreateNtuple("102", "deposited_energy");
+	manager -> CreateNtuple("2_deposited_energy", "deposited_energy");
 	fNtColId[1] = manager -> CreateNtupleDColumn("E_keV");	//deposited energy 
 	fNtColId[2] = manager -> CreateNtupleDColumn("l_um");	//chord length
  
 	manager -> FinishNtuple();
 
 	//creating a ntuple, containing the information about secondary particles
-	manager -> CreateNtuple("103", "secondary_particles");
+	manager -> CreateNtuple("3_secondary_particles", "secondary_particles");
 	fNtColId[3] = manager -> CreateNtupleDColumn("AA");
 	fNtColId[4] = manager -> CreateNtupleDColumn("ZZ");
 	fNtColId[5] = manager -> CreateNtupleDColumn("Kin_keV");
@@ -90,11 +90,11 @@ void AnalysisManager::book()
 }
 
 
-void AnalysisManager::SetPrimaryEnergy(G4double energy)  //disabled
+void AnalysisManager::SetPrimaryEnergy(G4double energy)
 {
-	//G4AnalysisManager* manager = G4AnalysisManager::Instance();
-	//manager -> FillNtupleDColumn(1, fNtColId[0], energy/keV);
-	//manager -> AddNtupleRow(1); 
+	G4AnalysisManager* manager = G4AnalysisManager::Instance();
+	manager -> FillNtupleDColumn(1, fNtColId[0], energy/keV);
+	manager -> AddNtupleRow(1); 
 }
 
 void AnalysisManager::StoreEnergyDeposition(G4double edep, G4double pathlen)
@@ -105,14 +105,14 @@ void AnalysisManager::StoreEnergyDeposition(G4double edep, G4double pathlen)
 	manager -> AddNtupleRow(2); 
 }
 
-void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy)  //disabled
+void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy)
 {
 
-  //G4AnalysisManager* manager = G4AnalysisManager::Instance();
-  //manager -> FillNtupleDColumn(3, fNtColId[3], AA);
-  //manager -> FillNtupleDColumn(3, fNtColId[4], charge);
-  //manager -> FillNtupleDColumn(3, fNtColId[5], energy/keV);
-  //manager -> AddNtupleRow(3);  
+  G4AnalysisManager* manager = G4AnalysisManager::Instance();
+  manager -> FillNtupleDColumn(3, fNtColId[3], AA);
+  manager -> FillNtupleDColumn(3, fNtColId[4], charge);
+  manager -> FillNtupleDColumn(3, fNtColId[5], energy/keV);
+  manager -> AddNtupleRow(3);  
 }
  
 void AnalysisManager::finish() 
