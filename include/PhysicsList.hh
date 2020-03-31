@@ -6,12 +6,17 @@
 class PhysicsList : public G4VModularPhysicsList
 {
 public:
-  PhysicsList();
-  ~PhysicsList(){;};
+	PhysicsList();
+	~PhysicsList(){;};
 
-  //Set cuts per region!
-  void 	SetCuts ();
+	//Set cuts per region!
+	void 	SetCuts ();
 
+private:
+	G4double fCutForGamma;
+	G4double fCutForElectron;
+	G4double fCutForPositron;
+	G4double fCutForProton;
 };
 
 #endif

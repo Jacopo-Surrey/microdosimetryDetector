@@ -219,17 +219,21 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 					logical_highPVol,
 					false, 0, true);
 		name.str("");
-		SVposition[0] += SVside[i] + SVspacing_ee // update x-position to the edge of the next SV
+		SVposition[0] += SVside[i] + SVspacing_ee; // update x-position to the edge of the next SV
 		
 		logical_SV[i] -> SetVisAttributes(SVcolour);
 	}
 	
 	//substrate
 	//SCRIVI LE DIMENSIONI DEL SUBSTRATO
+	
+	// high precision region
+	G4Region* highPRegion = new G4Region("highPRegion");
+	highPRegion->AddRootLogicalVolume(logical_highPVol);
         
-return physical_world; 
-
+	return physical_world; 
 }
+
 #else	// if the flag is on, build the reference silicon instead
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
@@ -424,7 +428,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 					false, 0, true);
 	
 	logical_oxyde -> SetVisAttributes(G4VisAttributes(G4Colour(0.6, 0.6, 0.6)));
-
+	
+	// high precision region
+	highPRegion = new G4Region("highPRegion");
+	highPRegion->AddRootLogicalVolume(logical_highPVol);
+	
 	return physical_world;
 }
 #endif

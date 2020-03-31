@@ -21,9 +21,9 @@ To visualize the output you can then run:
     python3 plot_fd.py
     
 ### ToDo
+- [ ] check that the cuts in the inner region have been implemented correctly
 - [ ] properly write this readme
 - [ ] finish diamond microdosimeter
-- [ ] add a detector-agnostic region with higher precision
 - [ ] set the source position via c++ -- might be pointlessly complex
 - [ ] improve the GPS macro
 - [ ] confront spectra with published ones
@@ -36,3 +36,4 @@ To visualize the output you can then run:
 - [x] ~~switch between the two with and `#ifdef`~~ DONE
 - [x] ~~remove the if condition inside the for loop when placing the diamond SV (change how the position is calculated)~~ DONE
 - [x] ~~add silicon microdosimeter (cfr article)~~ DONE
+- [x] ~~add a detector-agnostic region with higher precision~~ DONE
