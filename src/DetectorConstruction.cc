@@ -409,28 +409,38 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		}
 	}
 	
-	// add Si02 LAYER !!!
+	// Si02 layer
+	G4double oxyde_x = 1.*um /2.;
+	G4double oxyde_y = PMMA_y;
+	G4double oxyde_z = PMMA_z;
 	
-	//remember to add the sensitive detector below!
+	G4Box* oxyde_box = new G4Box("oxyde_box", oxyde_x, oxyde_y, oxyde_z);
+	
+	G4LogicalVolume* logical_oxyde = new G4LogicalVolume(oxyde_box, SiO2, "oxyde_log", 0,0,0);
+	
+	G4ThreeVector oxyde_position = G4ThreeVector( PMMA_x + oxyde_x, 0, 0 );
+	new G4PVPlacement(0, oxyde_position, logical_oxyde, "oxyde_phys",
+					logical_highPVol,
+					false, 0, true);
+	
+	logical_oxyde -> SetVisAttributes(G4VisAttributes(G4Colour(0.6, 0.6, 0.6)));
+
 	return physical_world;
 }
 #endif
 
 void DetectorConstruction::ConstructSDandField()
 {
-
-	#ifndef USING_SILICON
-		G4int sensitiveVolumeToOutput = 1; // if changed, remember to change also the physical volume in SteppingAction.cc where to look for secondaries information (in the "if" condition)
-	
-		std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
-
-		SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
-		G4SDManager::GetSDMpointer()->AddNewDetector(SD);
-		SetSensitiveDetector(outName.str(), SD);
-
-	//#else
-	//	add sensitive detector to silicon
-	
+	// !!! remember to change also the physical volume in SteppingAction.cc where to look for secondaries information (in the "if" condition)
+	#ifndef USING_SILICON 
+		G4int sensitiveVolumeToOutput = 1;	//the second one from the left
+	#else
+		G4int sensitiveVolumeToOutput = 12;	// the one in the very middle 
 	#endif
 	
+	std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
+
+	SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
+	G4SDManager::GetSDMpointer()->AddNewDetector(SD);
+	SetSensitiveDetector(outName.str(), SD);	
 }
