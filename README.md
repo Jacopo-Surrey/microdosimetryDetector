@@ -24,7 +24,6 @@ To visualize the output you can then run:
 - [ ] properly write this readme
 - [ ] finish diamond microdosimeter
 - [ ] add silicon microdosimeter (cfr article)
-- [x] ~~switch between the two with and `#ifdef`~~ DONE
 - [ ] add a detector-agnostic region with higher precision
 - [ ] set the source position via c++ -- might be pointlessly complex
 - [ ] improve the GPS macro
@@ -35,4 +34,5 @@ To visualize the output you can then run:
 - [ ] track type of hadron (its Z?) via the tracking action
 - [ ] add a rotation matrix to the diamond detector placement, so it can be rotated changing a single variable (as it can be rotated in the lab)
 - [ ] modify the sensitive volume in the stepping action to always pick the active one
-- [ ] remove the if condition inside the for loop when placing the diamond SV (change how the position is calculated)
+- [x] ~~switch between the two with and `#ifdef`~~ DONE
+- [x] ~~remove the if condition inside the for loop when placing the diamond SV (change how the position is calculated)~~ DONE

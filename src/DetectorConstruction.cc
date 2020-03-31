@@ -65,154 +65,146 @@ DetectorConstruction::~DetectorConstruction(){
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 
-//Define each individual element
-//Define Nitrogen
- G4double A = 14.01 * g/mole;
- G4double Z = 7;
- G4Element* elN = new G4Element ("Nitrogen", "N", Z, A);
+	//Define each individual element
+	//Define Nitrogen
+	G4double A = 14.01 * g/mole;
+	G4double Z = 7;
+	G4Element* elN = new G4Element ("Nitrogen", "N", Z, A);
 
-//Define Oxygen
- A = 16.0 * g/mole;
- Z = 8;
- G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
+	//Define Oxygen
+	A = 16.0 * g/mole;
+	Z = 8;
+	G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
 
-//Define Hydrogen 
- A = 1.01 * g/mole;
- Z = 1;
- G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
-
-//Define Boron
- A = 10.8 * g/mole;
- Z = 5;
- G4Element* elB = new G4Element ("Boron", "B", Z, A);
-
-//Define Carbon
- A = 12.01 * g/mole;
- Z = 6;
- G4Element* elC = new G4Element ("Carbon", "C", Z, A);
-
-//Define Air   
- G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
- Air -> AddElement(elN, 70*perCent);
- Air -> AddElement(elO, 30*perCent);
-
-//Define diamond
- A = 12.01 * g/mole;
- Z = 6;
- G4Material* diamond = new G4Material("diamond", Z, A, 3.515*g/cm3);
-			
-//Define dopant (boron doped diamond)
- G4Material* dopant = new G4Material("dopant", 3.514*g/cm3, 2);
- dopant -> AddElement(elC, 99.9994*perCent);
- dopant -> AddElement(elB, 0.0006*perCent);
-
- //Define Aluminium contacts (AlContact)
- //A = 26.981 * g/mole;
- //Z = 13;
- //G4Material* AlContact = new G4Material("AlContact", Z, A, 2.7 *g/cm3);
-
- //Define Gold contact (AuContact)
- //A = 196.97 * g/mole;
- //Z = 79;
- //G4Material* AuContact = new G4Material("AuContact", Z, A, 19.3 *g/cm3);
- 
- //Define PMMA (C502H8)
- // NIST reference 
- G4Material* PMMA = new G4Material("PMMA", 1.19*g/cm3, 3);
- PMMA -> AddElement(elC, 5);
- PMMA -> AddElement(elO, 2);
- PMMA -> AddElement(elH, 8);
-
- //define water
- G4Material* water = new G4Material("water", 1*g/cm3, 2);
- water -> AddElement(elH, 2);
- water -> AddElement(elO, 1);
+	//Define Hydrogen 
+	A = 1.01 * g/mole;
+	Z = 1;
+	G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
 	
- //Define Vacuum
- G4double vacuumDensity = 1.e-25 *g/cm3;
- G4double pressure = 3.e-18*pascal;
- G4double temperature = 2.73*kelvin;
- G4Material* vacuum = new G4Material("Galactic", Z=1., A=1.01*g/mole,
+	//Define Boron
+	A = 10.8 * g/mole;
+	Z = 5;
+	G4Element* elB = new G4Element ("Boron", "B", Z, A);
+
+	//Define Carbon
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Element* elC = new G4Element ("Carbon", "C", Z, A);
+
+	//Define Air   
+	G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
+	Air -> AddElement(elN, 70*perCent);
+	Air -> AddElement(elO, 30*perCent);
+
+	//Define diamond
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Material* diamond = new G4Material("diamond", Z, A, 3.515*g/cm3);
+			
+	//Define dopant (boron doped diamond)
+	G4Material* dopant = new G4Material("dopant", 3.514*g/cm3, 2);
+	dopant -> AddElement(elC, 99.9994*perCent);
+	dopant -> AddElement(elB, 0.0006*perCent);
+
+	//Define Aluminium contacts (AlContact)
+	//A = 26.981 * g/mole;
+	//Z = 13;
+	//G4Material* AlContact = new G4Material("AlContact", Z, A, 2.7 *g/cm3);
+
+	//Define Gold contact (AuContact)
+	//A = 196.97 * g/mole;
+	//Z = 79;
+	//G4Material* AuContact = new G4Material("AuContact", Z, A, 19.3 *g/cm3);
+
+	//define water
+	G4Material* water = new G4Material("water", 1*g/cm3, 2);
+	water -> AddElement(elH, 2);
+	water -> AddElement(elO, 1);
+	
+	//Define Vacuum
+	G4double vacuumDensity = 1.e-25 *g/cm3;
+	G4double pressure = 3.e-18*pascal;
+	G4double temperature = 2.73*kelvin;
+	G4Material* vacuum = new G4Material("Galactic", Z=1., A=1.01*g/mole,
 			         vacuumDensity,kStateGas,temperature,pressure);
 
- //Define volumes
- // World volume
- G4double worldx = 1*m /2.;  //half length!!!!
- G4double worldy = 1*m /2.;
- G4double worldz = 1*m /2.;
+	//Define volumes
+	// World volume
+	G4double worldx = 1*m /2.;  //half length!!!!
+	G4double worldy = 1*m /2.;
+	G4double worldz = 1*m /2.;
 
- // World volume, containing all geometry
- G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
+	// World volume, containing all geometry
+	G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
 
- G4LogicalVolume* logical_world = new G4LogicalVolume(world, vacuum, "world_log", 0,0,0);
+	G4LogicalVolume* logical_world = new G4LogicalVolume(world, vacuum, "world_log", 0,0,0);
 
- //set the logical world volume invisible
- logical_world -> SetVisAttributes(G4VisAttributes::GetInvisible());
+	//set the logical world volume invisible
+	logical_world -> SetVisAttributes(G4VisAttributes::GetInvisible());
 
- G4VPhysicalVolume* physical_world = new G4PVPlacement(0,
-						       G4ThreeVector(),
-						       logical_world, 
-							"world_phys",
-							0, 
-							false, 
-							0);
+	G4VPhysicalVolume* physical_world = new G4PVPlacement(0,
+												G4ThreeVector(),
+												logical_world, 
+												"world_phys",
+								0, 
+								false, 
+								0);
 
- // I ignore the Aluminium walls. The inside of the chamber is filled with air
- G4double chamVol_x = 250*millimeter /2.;
- G4double chamVol_y = 150*millimeter /2.;
- G4double chamVol_z = 116*millimeter /2.;
+	// I ignore the Aluminium walls. The inside of the chamber is filled with air
+	G4double chamVol_x = 250*millimeter /2.;
+	G4double chamVol_y = 150*millimeter /2.;
+	G4double chamVol_z = 116*millimeter /2.;
 
- G4Box* chamVol_box = new G4Box("chamVol_box", chamVol_x, chamVol_y, chamVol_z);
+	G4Box* chamVol_box = new G4Box("chamVol_box", chamVol_x, chamVol_y, chamVol_z);
  
- G4LogicalVolume* logical_chamVol = new G4LogicalVolume(chamVol_box, Air, "chamVol_log",0,0,0);
+	G4LogicalVolume* logical_chamVol = new G4LogicalVolume(chamVol_box, Air, "chamVol_log",0,0,0);
  
- new G4PVPlacement(0, G4ThreeVector(0,0,0), logical_chamVol,"chamVol_phys",
-			  logical_world, 
-			  false, 0, true);
+	new G4PVPlacement(0, G4ThreeVector(0,0,0), logical_chamVol,"chamVol_phys",
+					logical_world, 
+					false, 0, true);
  
- //logical_chamVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
- logical_chamVol -> SetVisAttributes(G4VisAttributes::GetInvisible());
+	//logical_chamVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
+	logical_chamVol -> SetVisAttributes(G4VisAttributes::GetInvisible());
  
-  // 4 later: smaller air volume where I can lower the cuts with G4Region
- G4double highPVol_x = 8*millimeter /2.; 
- G4double highPVol_y = 8*millimeter /2.;
- G4double highPVol_z = 6*millimeter /2.;
+	// 4 later: smaller air volume where I can lower the cuts with G4Region
+	G4double highPVol_x = 8*millimeter /2.; 
+	G4double highPVol_y = 8*millimeter /2.;
+	G4double highPVol_z = 6*millimeter /2.;
 
- G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
+	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
  
- G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, Air, "highPVol_log",0,0,0);
+	G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, Air, "highPVol_log",0,0,0);
  
- G4double sourceDetectorAxis_x = chamVol_x - 70*millimeter;
+	G4double sourceDetectorAxis_x = chamVol_x - 70*millimeter;
  
- G4ThreeVector highP_position = G4ThreeVector( sourceDetectorAxis_x , 0 , - chamVol_z + 20*millimeter );
+	G4ThreeVector highP_position = G4ThreeVector( sourceDetectorAxis_x , 0 , - chamVol_z + 20*millimeter );
  
- new G4PVPlacement(0, highP_position, logical_highPVol,"highPVol_phys",
-			  logical_chamVol, 
-			  false, 0, true);
+	new G4PVPlacement(0, highP_position, logical_highPVol,"highPVol_phys",
+				logical_chamVol, 
+				false, 0, true);
  
- logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
+	logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
  
- // Sensitive volumes
- G4double SVspacing_ss = 200.*micrometer; //side-side distance
- G4double SVthickness = 8.*micrometer /2.;
- //G4double SVthickness = 1.*micrometer /2.;
+	// Sensitive volumes
+	G4double SVspacing_ee = 200.*micrometer; //edge-edge distance
+	G4double SVthickness = 8.*micrometer /2.;
+	//G4double SVthickness = 1.*micrometer /2.;
  
- // 4 sensitive volumes
- G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!
+	// 4 sensitive volumes
+	G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!
  
- G4Box* SV_box[4];
- G4LogicalVolume* logical_SV[4];
- G4ThreeVector SVposition;
+	G4Box* SV_box[4];
+	G4LogicalVolume* logical_SV[4];
  
- std::ostringstream name;
+	std::ostringstream name;
  
- //prepare its colour
- G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
- SVcolour.SetForceSolid(true);
+	//prepare its colour
+	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
+	SVcolour.SetForceSolid(true);
  
-SVposition={-(1.5 * SVspacing_ss + 2 * SVside[2] + SVside[1]), 0, SVthickness};
- for( int i=0; i<4; i++)
- {
+	G4ThreeVector SVposition ={ -(1.5*SVspacing_ee + 2*SVside[2] +  2*SVside[1]), 0, SVthickness};	//position of the first edge (left) 
+	for( int i=0; i<4; i++)
+	{
 		name << "SV_box_" << i;
 		SV_box[i] = new G4Box(name.str(), SVside[i], SVside[i], SVthickness);
 		name.str(""); //clears the string 
@@ -222,20 +214,18 @@ SVposition={-(1.5 * SVspacing_ss + 2 * SVside[2] + SVside[1]), 0, SVthickness};
 		name.str("");
 		
 		name << "SV_phys_" << i;
+		SVposition[0] += SVside[i];	// update the position to the centre 
 		new G4PVPlacement(0, SVposition, logical_SV[i], name.str(),
 					logical_highPVol,
 					false, 0, true);
 		name.str("");
+		SVposition[0] += SVside[i] + SVspacing_ee // update x-position to the edge of the next SV
 		
 		logical_SV[i] -> SetVisAttributes(SVcolour);
-                if (i<3)
-		{
-			SVposition[0] = SVposition[0] + SVspacing_ss+SVside[i]+SVside[i+1]; // update x-position
-		}
- }
- 
- //substrate
- //SCRIVI LE DIMENSIONI DEL SUBSTRATO
+	}
+	
+	//substrate
+	//SCRIVI LE DIMENSIONI DEL SUBSTRATO
         
 return physical_world; 
 
