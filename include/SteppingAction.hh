@@ -42,13 +42,15 @@ class G4Step;
 class SteppingAction: public G4UserSteppingAction
 {
 public:
- SteppingAction(AnalysisManager* analysis);
- ~SteppingAction();
+	SteppingAction(AnalysisManager* analysis);
+	~SteppingAction();
 
- void UserSteppingAction(const G4Step* aStep);
+	void UserSteppingAction(const G4Step* aStep);
 
 private:
- AnalysisManager* analysis; 
- G4TrackVector* fSecondary;
+	AnalysisManager* analysis; 
+	G4TrackVector* fSecondary;
+	
+	G4String activeVolumeName;
 };
 #endif

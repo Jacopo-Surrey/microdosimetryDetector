@@ -40,14 +40,18 @@ class G4LogicalVolume;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-    DetectorConstruction(AnalysisManager* analysis);
-    ~DetectorConstruction();
+	DetectorConstruction(AnalysisManager* analysis);
+	~DetectorConstruction();
 
-    G4VPhysicalVolume* Construct();
+	G4VPhysicalVolume* Construct();
 
-    void ConstructSDandField();
+	void ConstructSDandField();
+	
+	static G4int getActiveSVno() { return sensitiveVolumeToOutput; };
 
 private:
-  AnalysisManager* analysis;
+	AnalysisManager* analysis;
+
+	static G4int sensitiveVolumeToOutput;
 };
 #endif

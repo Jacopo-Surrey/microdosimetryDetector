@@ -37,10 +37,19 @@
 #include "AnalysisManager.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "DetectorConstruction.hh"
+
 SteppingAction::SteppingAction(AnalysisManager* pAnalysis)
 { 
-analysis = pAnalysis;
-fSecondary = 0; 
+	analysis = pAnalysis;
+	fSecondary = 0;
+	
+	// set the name of the active volume
+	std::ostringstream name;
+	name << "SV_phys_" << DetectorConstruction::getActiveSVno();
+	activeVolumeName = name.str();
+	
+	G4cout << "Outputting sensitive volume: " << activeVolumeName << G4endl;
 }
 
 SteppingAction::~SteppingAction()
@@ -68,9 +77,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
        G4double charge = (*fSecondary)[lp1] -> GetDynamicParticle() -> GetDefinition() -> GetPDGCharge();
        G4int AA = (*fSecondary)[lp1] -> GetDynamicParticle() -> GetDefinition() -> GetBaryonNumber();
           
-     if (volumeName == "SV_phys_1") //change it depending on the diamond detector used
-//Testing with larger volume!
-//if (volumeName == "DiaVol_phys")
+     if (volumeName == activeVolumeName)
 	 {
 	   if ((secondaryParticleName == "proton") ||
                (secondaryParticleName == "neutron")||

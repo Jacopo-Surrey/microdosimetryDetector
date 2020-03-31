@@ -51,6 +51,14 @@
 #include "G4SystemOfUnits.hh"
 #include "G4NistManager.hh"
 
+// set the active SV to output
+// being static, they can be accessed from the SteppinAction
+#ifndef USING_SILICON 
+	G4int DetectorConstruction::sensitiveVolumeToOutput = 1;	//the second one from the left
+#else
+	G4int DetectorConstruction::sensitiveVolumeToOutput = 12;	// the one in the very middle 
+#endif
+
 DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager)
 {
 analysis = analysis_manager;
@@ -430,7 +438,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	logical_oxyde -> SetVisAttributes(G4VisAttributes(G4Colour(0.6, 0.6, 0.6)));
 	
 	// high precision region
-	highPRegion = new G4Region("highPRegion");
+	G4Region* highPRegion = new G4Region("highPRegion");
 	highPRegion->AddRootLogicalVolume(logical_highPVol);
 	
 	return physical_world;
@@ -439,13 +447,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 void DetectorConstruction::ConstructSDandField()
 {
-	// !!! remember to change also the physical volume in SteppingAction.cc where to look for secondaries information (in the "if" condition)
-	#ifndef USING_SILICON 
-		G4int sensitiveVolumeToOutput = 1;	//the second one from the left
-	#else
-		G4int sensitiveVolumeToOutput = 12;	// the one in the very middle 
-	#endif
-	
 	std::ostringstream outName; outName << "SV_log_" << sensitiveVolumeToOutput;
 
 	SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
