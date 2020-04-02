@@ -55,6 +55,9 @@ class SensitiveDetector : public G4VSensitiveDetector
   private:
     SensitiveDetectorHitsCollection* fHitsCollection;
     AnalysisManager* analysis;
+	
+	G4String activeVolumeName;
+
 };
 
 #endif

@@ -45,6 +45,11 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 {
 	collectionName.insert(hitsCollectionName);
 	analysis = analysis_manager;
+	
+	// retrieve the name of the active volume
+	std::ostringstream AVname;
+	AVname << "SV_phys_" << DetectorConstruction::getActiveSVno();
+	activeVolumeName = AVname.str();
 }
 
 SensitiveDetector::~SensitiveDetector() 
@@ -72,11 +77,6 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 	if (edep==0.) return false;
 
 	G4String volumeName = aStep -> GetPreStepPoint() -> GetPhysicalVolume()-> GetName();
-
-	// retrieve the name of the active volume
-	std::ostringstream AVname;
-	AVname << "SV_phys_" << DetectorConstruction::getActiveSVno();
-	G4String activeVolumeName = AVname.str();
 
 	if(volumeName != activeVolumeName) 
 		return false;  
