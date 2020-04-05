@@ -53,5 +53,7 @@ private:
 	AnalysisManager* analysis;
 
 	static G4int sensitiveVolumeToOutput;
+
+	static G4double detector_thickness;
 };
 #endif
