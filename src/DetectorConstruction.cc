@@ -352,7 +352,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  
 	G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, water, "highPVol_log",0,0,0);
 	
-	G4double detectorDepth = 80.*mm;	// CHANGE ME
+	G4double detectorDepth = 10.*mm;	// CHANGE ME
 	
 	G4double detectorCentre_x = -phantom_x + detectorDepth + highPVol_x;
 	
