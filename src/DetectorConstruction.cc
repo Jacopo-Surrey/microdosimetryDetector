@@ -54,7 +54,8 @@
 // set the active SV to output
 // being static, they can be accessed from the SteppinAction
 #ifndef USING_SILICON 
-	G4int DetectorConstruction::sensitiveVolumeToOutput = 1;	//the second one from the left
+	G4int DetectorConstruction::sensitiveVolumeToOutput = 1;	// 0=50x50, 1=300x300, 2=100x100, 3=200x200
+	G4double DetectorConstruction::detector_thickness = 8.*micrometer; // set detector thickness
 #else
 	G4int DetectorConstruction::sensitiveVolumeToOutput = 12;	// the one in the very middle 
 #endif
@@ -195,8 +196,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  
 	// Sensitive volumes
 	G4double SVspacing_ee = 200.*micrometer; //edge-edge distance
-	G4double SVthickness = 8.*micrometer /2.;
-	//G4double SVthickness = 1.*micrometer /2.;
+
+	G4double SVthickness = detector_thickness /2.; // hald the detector thickness defined at the beginning of this document
  
 	// 4 sensitive volumes
 	G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!
