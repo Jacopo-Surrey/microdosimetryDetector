@@ -35,6 +35,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4Cons.hh"
 //#include "G4SubtractionSolid.hh"
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
@@ -139,12 +140,19 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 	//Define volumes
 	// World volume
-	G4double worldx = 1*m /2.;  //half length!!!!
-	G4double worldy = 1*m /2.;
-	G4double worldz = 1*m /2.;
+	// if box
+	G4double worldx = 3.*mm /2.;  //half length!!!!
+	G4double worldy = 3.*mm /2.;
+	// if cylinder
+	G4double worldrz = 1.5*mm;  
+	G4double worldrZ = 3.*mm;
+	// the height is the same for both shapes
+	G4double worldz = 20.*mm /2.; //half length!!!!
+
 
 	// World volume, containing all geometry
-	G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
+	G4Box* world = new G4Box("world_vol", worldx, worldy, worldz);
+        //G4Cons* world = new G4Cons("world_vol", 0.*mm, worldrz, 0.*mm, worldrZ, worldz, 0*deg, 360*deg);
 
 	G4LogicalVolume* logical_world = new G4LogicalVolume(world, vacuum, "world_log", 0,0,0);
 
@@ -152,13 +160,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	logical_world -> SetVisAttributes(G4VisAttributes::GetInvisible());
 
 	G4VPhysicalVolume* physical_world = new G4PVPlacement(0,
-												G4ThreeVector(),
-												logical_world, 
-												"world_phys",
+								G4ThreeVector(),
+								logical_world, 
+								"world_phys",
 								0, 
 								false, 
 								0);
 
+
+/*	// Whole box geometry
 	// I ignore the Aluminium walls. The inside of the chamber is filled with air
 	G4double chamVol_x = 250*millimeter /2.;
 	G4double chamVol_y = 150*millimeter /2.;
@@ -198,6 +208,84 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4double SVspacing_ee = 200.*micrometer; //edge-edge distance
 
 	G4double SVthickness = detector_thickness /2.; // hald the detector thickness defined at the beginning of this document
+ 
+	// 4 sensitive volumes
+	G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!
+ 
+	G4Box* SV_box[4];
+	G4LogicalVolume* logical_SV[4];
+ 
+	std::ostringstream name;
+ 
+	//prepare its colour
+	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
+	SVcolour.SetForceSolid(true);
+ 
+	G4ThreeVector SVposition ={ -(1.5*SVspacing_ee + 2*SVside[2] +  2*SVside[1]), 0, SVthickness};	//position of the first edge (left) 
+	for( int i=0; i<4; i++)
+	{
+		name << "SV_box_" << i;
+		SV_box[i] = new G4Box(name.str(), SVside[i], SVside[i], SVthickness);
+		name.str(""); //clears the string 
+		
+		name << "SV_log_" << i;
+		logical_SV[i] = new G4LogicalVolume(SV_box[i], diamond, name.str(), 0,0,0);
+		name.str("");
+		
+		name << "SV_phys_" << i;
+		SVposition[0] += SVside[i];	// update the position to the centre 
+		new G4PVPlacement(0, SVposition, logical_SV[i], name.str(),
+					logical_highPVol,
+					false, 0, true);
+		name.str("");
+		SVposition[0] += SVside[i] + SVspacing_ee; // update x-position to the edge of the next SV
+		
+		logical_SV[i] -> SetVisAttributes(SVcolour);
+	}
+*/
+	// simplified geometry
+	// distance between source and microdosimeter
+	G4double dd = 18.*millimeter;
+	G4double chamVol_rz = 1.*millimeter;
+	G4double chamVol_rZ = 2.6*millimeter;
+	G4double chamVol_z = (dd+1.) /2.; //half length!!!!
+
+        G4Cons* chamVol_cons = new G4Cons("chamVol_cons", 0.*mm, chamVol_rz, 0.*mm, chamVol_rZ, chamVol_z, 0*deg, 360*deg);
+ 
+	G4LogicalVolume* logical_chamVol = new G4LogicalVolume(chamVol_cons, Air, "chamVol_log",0,0,0);
+	//G4LogicalVolume* logical_chamVol = new G4LogicalVolume(chamVol_cons, vacuum, "chamVol_log",0,0,0);
+ 
+	new G4PVPlacement(0, G4ThreeVector(0,0,0), logical_chamVol,"chamVol_phys",
+					logical_world, 
+					false, 0, true);
+ 
+	logical_chamVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
+	//logical_chamVol -> SetVisAttributes(G4VisAttributes::GetInvisible());
+ 
+	// 4 later: smaller air volume where I can lower the cuts with G4Region
+	G4double highPVol_x = 1.5*millimeter /2.; 
+	G4double highPVol_y = 0.7*millimeter /2.;
+	G4double highPVol_z = 0.1*millimeter /2.;
+
+	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
+ 
+	G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, Air, "highPVol_log",0,0,0);
+	//G4LogicalVolume* logical_highPVol = new G4LogicalVolume(highPVol_box, vacuum, "highPVol_log",0,0,0);
+ 
+	G4double detectorPosition_z = -dd/2.;
+ 
+	G4ThreeVector highP_position = G4ThreeVector( 0. , 0 , detectorPosition_z );
+ 
+	new G4PVPlacement(0, highP_position, logical_highPVol,"highPVol_phys",
+				logical_chamVol, 
+				false, 0, true);
+ 
+	logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(255,255,255))); //white
+ 
+	// Sensitive volumes
+	G4double SVspacing_ee = 200.*micrometer; //edge-edge distance
+
+	G4double SVthickness = detector_thickness /2.; // half the detector thickness
  
 	// 4 sensitive volumes
 	G4double SVside[4] = { 50.*micrometer /2., 300.*micrometer /2., 100.*micrometer /2., 200.*micrometer /2.}; // half side!!

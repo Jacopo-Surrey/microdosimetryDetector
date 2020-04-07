@@ -1,13 +1,25 @@
 /gps/source/set 0
 /gps/pos/type Plane
 /gps/pos/shape Circle
-/gps/pos/centre 55. 0. -20. mm
 /gps/pos/radius 2.5 mm
 /gps/ang/type iso
-# only considered some angles to improve computation times
-/gps/ang/mintheta 170 deg
-/gps/ang/maxtheta 180 deg
-/gps/ang/minphi 0 deg
-/gps/ang/maxphi 360 deg
 /gps/ene/mono 5.49 MeV
 /gps/particle alpha
+#
+# source positioning according to the geometry used in detector constructor
+#
+# simplified geometry position
+/gps/pos/centre 0. 0. 9. mm
+# only considered some angles to improve computation times
+/gps/ang/mintheta 0 deg
+/gps/ang/maxtheta 10 deg
+/gps/ang/minphi 0 deg
+/gps/ang/maxphi 360 deg
+#
+# whole experimental box geometry
+#/gps/pos/centre 55. 0. -20. mm
+## only considered some angles to improve computation times
+#/gps/ang/mintheta 170 deg
+#/gps/ang/maxtheta 180 deg
+#/gps/ang/minphi 0 deg
+#/gps/ang/maxphi 360 deg
