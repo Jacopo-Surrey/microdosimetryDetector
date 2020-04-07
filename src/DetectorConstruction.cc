@@ -141,8 +141,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	//Define volumes
 	// World volume
 	// if box
-	G4double worldx = 3.*mm /2.;  //half length!!!!
-	G4double worldy = 3.*mm /2.;
+	G4double worldx = 6.*mm /2.;  //half length!!!!
+	G4double worldy = 6.*mm /2.;
 	// if cylinder
 	G4double worldrz = 1.5*mm;  
 	G4double worldrZ = 3.*mm;
