@@ -85,6 +85,13 @@ void AnalysisManager::book()
 	fNtColId[5] = manager -> CreateNtupleDColumn("Kin_keV");
 	manager -> FinishNtuple();
 
+	// creating Energy lost by primaries Ntuple
+	manager -> CreateNtuple("2b_energy_lost", "energy_lost");
+	fNtColId[6] = manager -> CreateNtupleDColumn("Elost_keV");
+	fNtColId[7] = manager -> CreateNtupleDColumn("Ein_keV");
+	fNtColId[8] = manager -> CreateNtupleDColumn("Eout_keV");
+	manager -> FinishNtuple();
+
   
 	factoryOn = true;    
 }
@@ -114,7 +121,17 @@ void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy
   manager -> FillNtupleDColumn(3, fNtColId[5], energy/keV);
   manager -> AddNtupleRow(3);  
 }
+
+void AnalysisManager::StorePrimaryEnergyLost(G4double elost, G4double ein, G4double eout)
+{
+	G4AnalysisManager* manager = G4AnalysisManager::Instance();
+	manager -> FillNtupleDColumn(4, fNtColId[6], elost/keV);
+	manager -> FillNtupleDColumn(4, fNtColId[7], ein/keV);
+	manager -> FillNtupleDColumn(4, fNtColId[8], eout/keV);
+	manager -> AddNtupleRow(4);
+}
  
+
 void AnalysisManager::finish() 
 {   
 	if (factoryOn) 

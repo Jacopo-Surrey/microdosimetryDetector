@@ -57,6 +57,10 @@ class SensitiveDetector : public G4VSensitiveDetector
     AnalysisManager* analysis;
 	
 	G4String activeVolumeName;
+	// private variable to get the kinetic energy lost by primaries
+	G4bool firstStep;
+	G4double Ek_in;
+	G4double Ek_out;
 
 };
 
