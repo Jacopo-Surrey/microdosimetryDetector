@@ -50,6 +50,11 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 	std::ostringstream AVname;
 	AVname << "SV_phys_" << DetectorConstruction::getActiveSVno();
 	activeVolumeName = AVname.str();
+
+	// initialize the private variables for primaries energy lost calculation
+	firstStep=true;
+	Ek_in=0.;
+	Ek_out=0.;
 }
 
 SensitiveDetector::~SensitiveDetector() 
@@ -102,6 +107,20 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 
 	newHit->SetPath(len);
 	
+	// Primary kinetic energy storing
+	G4int trackID = aStep -> GetTrack() -> GetTrackID();
+	if (trackID==1) { //if it is a primary particle
+		// initial kinetic energy, when entering the active volume
+		if (firstStep==1) {
+			Ek_in=aStep->GetPreStepPoint()->GetKineticEnergy();
+			firstStep=false;
+			// print out the position where the primary gets into the active volume. It is a check so it should be comment out when running the simulation.
+			G4ThreeVector posEntrance=aStep->GetPreStepPoint()->GetPosition();
+			G4cout << "Primary entrance position " <<posEntrance << G4endl;
+		}
+		Ek_out=aStep->GetPostStepPoint()->GetKineticEnergy(); // it updates it every step until the last one, which is the one I am interested in storing
+	}
+	
 	fHitsCollection->insert(newHit);
 	return true;
 }
@@ -129,4 +148,12 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 
 	if (totalEdepInOneEvent!=0)
 		analysis-> StoreEnergyDeposition(totalEdepInOneEvent, totalPathLengthInOneEvent);
+
+	G4double elost = Ek_in - Ek_out;
+	if (elost>0)
+		analysis-> StorePrimaryEnergyLost(elost, Ek_in, Ek_out);
+	// restore private variables to default values
+	firstStep=true;
+	Ek_in=0.;
+	Ek_out=0.;
 }

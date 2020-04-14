@@ -35,7 +35,7 @@
 #include "g4csv.hh"	//comma separated values (output)
 
 // Define the total number of columns in the ntuple
-const G4int MaxNtCol = 5;
+const G4int MaxNtCol = 9;
 
 class AnalysisManager
 { 
@@ -51,6 +51,8 @@ public:
 	void StoreEnergyDeposition(G4double edep, G4double pathlen);// Fill the ntuple with energy deposition per event
   
 	void FillSecondaries(G4int AA, G4double charge, G4double energy);	// Information about secondary particles
+
+	void StorePrimaryEnergyLost(G4double elost, G4double ein, G4double eout); // Energy lost by the primaries in the active sensitive volume per event
 
 	void finish();	// Close the output file with all the results stored in nutples 
 
