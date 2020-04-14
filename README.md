@@ -30,6 +30,7 @@ To visualize the output you can then run:
 - [ ] check why `delete analysis;` in `main.cc` causes the following error when executing a program from the command line: `free(): invalid next size (fast)`   `Aborted (core dumped)`
 - [ ] track type of hadron (its Z?) via the tracking action
 - [ ] add a rotation matrix to the diamond detector placement, so it can be rotated changing a single variable (as it can be rotated in the lab)
+- [ ] rewrite the energy loss detection on a per-step basis, so that it works when there are hadrons as secondaries
 - [x] ~~switch between the two with and `#ifdef`~~ DONE
 - [x] ~~remove the if condition inside the for loop when placing the diamond SV (change how the position is calculated)~~ DONE
 - [x] ~~add silicon microdosimeter (cfr article)~~ DONE
