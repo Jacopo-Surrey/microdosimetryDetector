@@ -9,7 +9,7 @@
 # source positioning according to the geometry used in detector constructor
 #
 # simplified geometry position
-/gps/pos/centre 0. 0. 9. mm
+/gps/pos/centre 0. 0. 12. mm
 # only considered some angles to improve computation times
 /gps/ang/mintheta 0 deg
 /gps/ang/maxtheta 10 deg
