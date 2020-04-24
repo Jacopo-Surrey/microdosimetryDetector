@@ -57,6 +57,7 @@
 #ifndef USING_SILICON 
 	G4int DetectorConstruction::sensitiveVolumeToOutput = 1;	// 0=50x50, 1=300x300, 2=100x100, 3=200x200
 	G4double DetectorConstruction::detector_thickness = 8.*micrometer; // set detector thickness
+	G4double DetectorConstruction::dd = 24.*millimeter; // detecotr-source distance. NB change GPS source settings as well!!
 #else
 	G4int DetectorConstruction::sensitiveVolumeToOutput = 12;	// the one in the very middle 
 #endif
@@ -111,10 +112,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	Z = 6;
 	G4Material* diamond = new G4Material("diamond", Z, A, 3.515*g/cm3);
 			
-	//Define dopant (boron doped diamond)
-	G4Material* dopant = new G4Material("dopant", 3.514*g/cm3, 2);
-	dopant -> AddElement(elC, 99.9994*perCent);
-	dopant -> AddElement(elB, 0.0006*perCent);
+	//Define p-type diamond (boron doped diamond)
+	G4Material* p_diamond = new G4Material("p_diamond", 3.514*g/cm3, 2);
+	// Boron concentration used is 1e20 cm-3, considering the diamond density and a Boron atomic weight of 10.811u
+	p_diamond -> AddElement(elC, 99.94887*perCent);
+	p_diamond -> AddElement(elB, 0.05113*perCent);
+
+	//Define chromium contact
+	G4Material* chromium = G4NistManager::Instance()->FindOrBuildMaterial("G4_Cr");
 
 	//Define Aluminium contacts (AlContact)
 	//A = 26.981 * g/mole;
@@ -147,7 +152,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4double worldrz = 1.5*mm;  
 	G4double worldrZ = 3.*mm;
 	// the height is the same for both shapes
-	G4double worldz = 20.*mm /2.; //half length!!!!
+	G4double worldz = (dd+2.) /2.; //half length!!!!
 
 
 	// World volume, containing all geometry
@@ -245,7 +250,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 */
 	// simplified geometry
 	// distance between source and microdosimeter
-	G4double dd = 18.*millimeter;
 	G4double chamVol_rz = 1.*millimeter;
 	G4double chamVol_rZ = 2.6*millimeter;
 	G4double chamVol_z = (dd+1.) /2.; //half length!!!!
@@ -265,7 +269,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	// 4 later: smaller air volume where I can lower the cuts with G4Region
 	G4double highPVol_x = 1.5*millimeter /2.; 
 	G4double highPVol_y = 0.7*millimeter /2.;
-	G4double highPVol_z = 0.1*millimeter /2.;
+	G4double highPVol_z = 0.7*millimeter /2.; // has to be at least 0.31 as it contains p-type and substrate on the back-half (301 um)
 
 	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
  
@@ -295,11 +299,31 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
  
 	std::ostringstream name;
  
-	//prepare its colour
+	//prepare colours
 	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
 	SVcolour.SetForceSolid(true);
+	
+	G4VisAttributes fe_colour(G4Colour::Brown());
+	fe_colour.SetForceSolid(true);
+	G4VisAttributes pDcolour(G4Colour::Blue());
+	pDcolour.SetForceSolid(true);
+
+	// chromium front-electrode
+	G4Box* fe_box[4];
+	G4LogicalVolume* logical_fe[4];
+	G4double fet = 50.*nanometer /2.; // front-electrode half-thickness
+
+	// p-type diamond
+	G4Box* pD_box[4];
+	G4LogicalVolume* logical_pD[4];
+	G4double pDt = 1.*micrometer /2.; // p-type diamond back-electrode half-thickness
  
-	G4ThreeVector SVposition ={ -(1.5*SVspacing_ee + 2*SVside[2] +  2*SVside[1]), 0, SVthickness};	//position of the first edge (left) 
+	G4ThreeVector SVposition ={ -(1.5*SVspacing_ee + 2*SVside[2] +  2*SVside[1]), 0, SVthickness};	//position of the first edge (left)
+	G4ThreeVector fe_position = SVposition;
+	fe_position[2] = 2*SVthickness + fet; // updating z-coordinate considering they are halves thicknesses
+	G4ThreeVector pDposition = SVposition;
+	pDposition[2] = -pDt;
+
 	for( int i=0; i<4; i++)
 	{
 		name << "SV_box_" << i;
@@ -316,13 +340,59 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 					logical_highPVol,
 					false, 0, true);
 		name.str("");
-		SVposition[0] += SVside[i] + SVspacing_ee; // update x-position to the edge of the next SV
 		
 		logical_SV[i] -> SetVisAttributes(SVcolour);
+
+		// chromium front-electrode
+		name << "fe_box_"<< i;
+		fe_box[i] = new G4Box(name.str(), SVside[i], SVside[i], fet);
+		name.str("");
+		name << "fe_log_"<< i;
+		logical_fe[i]= new G4LogicalVolume(fe_box[i], chromium, name.str(), 0,0,0);
+		name.str("");
+		name << "fe_phys_" << i;
+		fe_position[0]=SVposition[0];
+		new G4PVPlacement(0, fe_position, logical_fe[i], name.str(),
+					logical_highPVol,
+					false, 0, true);
+		name.str("");
+
+		logical_fe[i] -> SetVisAttributes(fe_colour);
+
+		// p-type diamond back-electrode
+		name << "pD_box_"<< i;
+		pD_box[i] = new G4Box(name.str(), SVside[i], SVside[i], pDt);
+		name.str("");
+		name << "pD_log_"<< i;
+		logical_pD[i]= new G4LogicalVolume(pD_box[i], p_diamond, name.str(), 0,0,0);
+		name.str("");
+		name << "pD_phys_" << i;
+		pDposition[0]=SVposition[0];
+		new G4PVPlacement(0, pDposition, logical_pD[i], name.str(),
+					logical_highPVol,
+					false, 0, true);
+		name.str("");
+
+		logical_pD[i] -> SetVisAttributes(pDcolour);
+
+
+		SVposition[0] += SVside[i] + SVspacing_ee; // update x-position to the edge of the next SV
+		
 	}
-	
-	//substrate
-	//SCRIVI LE DIMENSIONI DEL SUBSTRATO
+
+
+
+	// HPHT diamondsubstrate, chosen to simulate only one big substrate for simplicity as it does not affect the simulation results. Actually I should not be a common substrate and its dimension (but the thickness that is correct) are differt
+	G4double subsx = 1.5*millimeter /2.; // substrate half-side x (taken as the highPvol)
+	G4double subsy = 0.7*millimeter /2.; // substrate half-side y (taken as the highPvol)
+	G4double subt = 300.*micrometer /2.; // substrate half-thicknesss
+	G4Box* sub_box = new G4Box("sub_box", subsx, subsy, subt);
+	G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
+	new G4PVPlacement(0, {0,0, -(2*pDt+subt)}, logical_sub, "sub_phys",
+				logical_highPVol,
+				false, 0, true);
+
+	logical_sub -> SetVisAttributes(SVcolour);
 	
 	// high precision region
 	G4Region* highPRegion = new G4Region("highPRegion");

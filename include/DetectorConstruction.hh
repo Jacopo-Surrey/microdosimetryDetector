@@ -55,5 +55,6 @@ private:
 	static G4int sensitiveVolumeToOutput;
 
 	static G4double detector_thickness;
+	static G4double dd;
 };
 #endif
