@@ -1,0 +1,22 @@
+/gps/source/set 0
+
+/gps/particle proton
+#if set to ion uncomment the following line
+#/gps/ion Z A Q E
+
+/gps/direction 0 0 1
+
+/gps/pos/type Beam
+/gps/pos/shape Circle
+
+/gps/pos/centre 0. 0. -400. mm
+
+/gps/pos/radius 0. mm
+/gps/pos/sigma_r 11. mm
+
+#put the source in the y-z plane
+/gps/pos/rot1 0. 1. 1.
+
+/gps/ene/type Gauss
+/gps/ene/mono 150.0 MeV
+/gps/ene/sigma 1.5 MeV

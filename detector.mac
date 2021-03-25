@@ -1,0 +1,11 @@
+/geometrySetup/selectDetector MicroDiamond
+
+/geometrySetup/enableWaterPhantom true
+
+/geometrySetup/detectorDimension/setWidth 100 um
+/geometrySetup/detectorDimension/setThickness 8 um
+
+/geometrySetup/detectorPosition/setDepth 10 mm
+
+/geometrySetup/applyChanges
+
