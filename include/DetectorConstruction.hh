@@ -60,6 +60,8 @@ private:
 	G4double detectorSizeWidth;
 	G4double detectorSizeThickness;
 	G4bool usingPhantom;
+	G4bool multiSV;
+	G4int nOfSV;
 	
 	//volumes to keep track of -- WRITE BETTER
 	G4VPhysicalVolume* physical_world;

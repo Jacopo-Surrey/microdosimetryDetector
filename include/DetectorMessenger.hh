@@ -58,6 +58,7 @@ public:
   G4double GetDetectorSizeWidth() { return detectorWidth; }
   G4double GetDetectorSizeThickness() { return detectorThickness; }
   G4bool GetUsingPhantomBool() { return usingPhantom; }
+  G4bool GetMultiSVBool() { return multiSV; }
   
 private:
   G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control
@@ -68,11 +69,12 @@ private:
   G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	
   G4UIcmdWithADoubleAndUnit *changeDetectorSizeWidthCmd;
   G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
-  G4UIcmdWithABool *enableWaterPhantom;
+  G4UIcmdWithABool *enableWaterPhantomCmd;
+  G4UIcmdWithABool *useMultipleSVCmd;
   
   G4UIcmdWithoutParameter *applyChangesToGeometryCmd;	// applies changes to detector position and/or size
   
-  // ADD SOME WAY TO ADD THE CUT IN G4Region
+  // ADD SOME WAY TO CHANGE THE CUT IN G4Region
   
   // parameters to store
   G4String detectorType;
@@ -80,6 +82,7 @@ private:
   G4double detectorWidth;
   G4double detectorThickness;
   G4bool usingPhantom;
+  G4bool multiSV;
   
   AnalysisManager* analysis;
 };

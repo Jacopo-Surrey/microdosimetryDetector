@@ -5,6 +5,8 @@
 /geometrySetup/detectorDimension/setWidth 100 um
 /geometrySetup/detectorDimension/setThickness 8 um
 
+/geometrySetup/useMultipleSV false
+
 /geometrySetup/detectorPosition/setDepth 10 mm
 
 /geometrySetup/applyChanges

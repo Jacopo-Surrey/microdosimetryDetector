@@ -2,7 +2,7 @@
 # THE SIMULATION IS EXECUTE IN INTERACTIVE MODE
 #
 #
-#/control/execute detector.mac
+/control/execute detector.mac
 #
 /run/initialize
 # Use these open statements to open selected visualization

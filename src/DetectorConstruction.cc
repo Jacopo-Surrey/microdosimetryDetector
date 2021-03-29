@@ -59,11 +59,15 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	messenger = detector_messenger;
 	
 	// the following are currently only implemented for MicroDiamond
-	detectorType = messenger->GetTheDetector();
-	detectorPositionDepth = messenger->GetDetectorPositionDepth();
-	detectorSizeWidth = messenger->GetDetectorSizeWidth();
-	detectorSizeThickness = messenger->GetDetectorSizeThickness();
-	usingPhantom = messenger->GetUsingPhantomBool();
+	detectorType = messenger -> GetTheDetector();
+	detectorPositionDepth = messenger -> GetDetectorPositionDepth();
+	detectorSizeWidth = messenger -> GetDetectorSizeWidth();
+	detectorSizeThickness = messenger -> GetDetectorSizeThickness();
+	usingPhantom = messenger -> GetUsingPhantomBool();
+	multiSV = messenger -> GetMultiSVBool();
+		
+	if( multiSV == true )	nOfSV = 4;
+	else if( multiSV == false )	nOfSV = 1;
 }
 
 DetectorConstruction::~DetectorConstruction(){
@@ -577,22 +581,33 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	G4ThreeVector fePosition = {0., 0., 2.*SVthickness + feThickness};
 	G4ThreeVector pDposition = {0., 0., -pDthickness};
 	
-	G4double SVposition_x[4] = { -3.*SVside -1.5*SVspacing, -SVside -0.5*SVspacing, +SVside +0.5*SVspacing, +3.*SVside +1.5*SVspacing };
+	G4double* SVposition_x = new G4double[ nOfSV ];
+	
+	if( nOfSV == 4 )
+	{
+		//SVposition_x[0] = { -3.*SVside -1.5*SVspacing, -SVside -0.5*SVspacing, +SVside +0.5*SVspacing, +3.*SVside +1.5*SVspacing };
+		SVposition_x[0] = -3.*SVside -1.5*SVspacing;
+		SVposition_x[1] = -SVside -0.5*SVspacing;
+		SVposition_x[2] = +SVside +0.5*SVspacing;
+		SVposition_x[3] = +3.*SVside +1.5*SVspacing;
+	}
+	
+	else if( nOfSV == 1 )	SVposition_x[0] = 0.;
 
 	std::ostringstream PVName;
 
-	for( int i=0; i<4; i++)
+	for( int i=0; i<nOfSV; i++)
 	{	
 		// sensitive volume
 		SVposition[0] = SVposition_x[i];
-		PVName << "SV_phys" << i;
+		PVName << "SV_phys_" << (i+1) ;
 		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
 					logical_motherVolumeForDetector,
 					false, 0, true);
 		PVName.str("");	//reset the string
 		
 		// chromium front-electrode
-		PVName << "frontElec_phys" << i;
+		PVName << "frontElec_phys_" << (i+1);
 		fePosition[0] = SVposition[0];
 		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
 					logical_motherVolumeForDetector,
@@ -600,7 +615,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 		PVName.str("");
 		
 		// p-type diamond back-electrode
-		PVName << "pD_phys" << i;
+		PVName << "pD_phys_" << (i+1);
 		pDposition[0] = SVposition[0];
 		new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
 					logical_motherVolumeForDetector,
@@ -608,7 +623,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 		PVName.str("");		
 	}
 
-	// HPHT diamond substrate (only one big substrate for simplicity)
+	// HPHT diamond substrate (only one big substrate for simplicity)	// CAMBIA LE MIE DIMENSIONI IN BASE AI SV !!!!
 	G4double subs_x = 2.*mm /2.;
 	G4double subs_y = 0.5*mm /2.; 
 	G4double sub_z = 300.*micrometer /2.; 
@@ -626,6 +641,8 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
 	subColour.SetForceSolid(false);
 	logical_sub -> SetVisAttributes(subColour);
+	
+	delete SVposition_x;
 }
 
 void DetectorConstruction::ConstructSiliconDetector()	// change return value   --- COMMENTED OUT!!!

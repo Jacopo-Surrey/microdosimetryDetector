@@ -81,10 +81,15 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeThicknessCmd -> SetDefaultUnit("um");
 	changeDetectorSizeThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
-	enableWaterPhantom = new G4UIcmdWithABool("/geometrySetup/enableWaterPhantom", this);
-	enableWaterPhantom -> SetGuidance("If true, the detector is placed inside a water phantom");
-	enableWaterPhantom -> SetParameterName("Phantom", false);
-	enableWaterPhantom -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	enableWaterPhantomCmd = new G4UIcmdWithABool("/geometrySetup/enableWaterPhantom", this);
+	enableWaterPhantomCmd -> SetGuidance("If true, the detector is placed inside a water phantom");
+	enableWaterPhantomCmd -> SetParameterName("Phantom", false);
+	enableWaterPhantomCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	
+	useMultipleSVCmd = new G4UIcmdWithABool("/geometrySetup/useMultipleSV", this);
+	useMultipleSVCmd -> SetGuidance("Set to true for multiple SV, false for a single one");
+	useMultipleSVCmd -> SetParameterName("MultipleSV", true);
+	useMultipleSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
     applyChangesToGeometryCmd -> SetGuidance("Apply selected changes to the geometry");
@@ -97,7 +102,8 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorDepth = 10*mm;
 	detectorWidth = 100.*um;
 	detectorThickness = 8.*um;
-	usingPhantom = true;
+	usingPhantom = true;	// FIX ME: currently the program crashes at various stages if this is set to false
+	multiSV = false;
 }
 
 DetectorMessenger::~DetectorMessenger()
@@ -106,6 +112,9 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeDetectorPositionDepthCmd;
 	delete changeDetectorSizeWidthCmd;
 	delete changeDetectorSizeThicknessCmd;
+	delete enableWaterPhantomCmd;
+	delete useMultipleSVCmd;
+	
 	delete applyChangesToGeometryCmd;
 	
 	delete changeDetectorPositionDir;
@@ -164,12 +173,23 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 	}
 	
-	else if( command == enableWaterPhantom )
+	else if( command == enableWaterPhantomCmd )
 	{
 		usingPhantom = G4UIcmdWithABool::GetNewBoolValue(commandContent);
 		
 		if( usingPhantom == true )	G4cout << "Water phantom enabled" << G4endl;
 		else if( usingPhantom == false )	G4cout << "Water phantom disabled" << G4endl;
+		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
+		
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+	}
+	
+	else if( command == useMultipleSVCmd )
+	{
+		multiSV = G4UIcmdWithABool::GetNewBoolValue(commandContent);
+		
+		if( multiSV == true )	G4cout << "Now using multiple SV" << G4endl;
+		else if( multiSV == false )	G4cout << "Now using a single SV" << G4endl;
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;

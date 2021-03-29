@@ -1,4 +1,4 @@
-#/control/execute detector.mac
+/control/execute detector.mac
 /run/initialize
 #/control/execute phys.mac
 /control/execute gps_beam.mac
