@@ -72,7 +72,7 @@ int main(int argc, char** argv)
   
   pRunManager -> SetUserInitialization(detector);
 
-  G4VUserPhysicsList* physics = new PhysicsList();
+  G4VUserPhysicsList* physics = new PhysicsList(detMess);
   
   pRunManager -> SetUserInitialization(physics); 
 

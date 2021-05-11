@@ -37,6 +37,7 @@
 #include "G4UIcmdWithoutParameter.hh"
 
 #include "DetectorConstruction.hh"
+#include "PhysicsList.hh"
 #include "G4RunManager.hh"
 
 #include "G4SystemOfUnits.hh"
@@ -197,14 +198,18 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 	
 	else if( command == applyChangesToGeometryCmd )
 	{
+		G4RunManager* runManager = G4RunManager::GetRunManager();
+		
+		// if geometryHasChanged == true
 		DetectorConstruction* newDetector = new DetectorConstruction(analysis, this);
-		G4RunManager *runManager = G4RunManager::GetRunManager();
 		runManager -> SetUserInitialization(newDetector);
 		runManager -> GeometryHasBeenModified();
 		
-		G4cout << "Changes to geometry have been applied" << G4endl;
-	
-		// SHOULD I ALSO CHANGE THE CUTS???
+		// (nested?) if regionsHaveChanged == true
+		G4VUserPhysicsList* newPhysics = new PhysicsList(this);
+		runManager -> SetUserInitialization(newPhysics);
+		runManager -> PhysicsHasBeenModified();
 		
+		G4cout << "Changes to geometry have been applied" << G4endl;		
 	}
 }

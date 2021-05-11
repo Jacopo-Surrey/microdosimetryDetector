@@ -2,11 +2,12 @@
 #define PHYSICS_LIST_HH
 
 #include <G4VModularPhysicsList.hh>
+#include "DetectorMessenger.hh"
 
 class PhysicsList : public G4VModularPhysicsList
 {
 public:
-	PhysicsList();
+	PhysicsList(DetectorMessenger* detectorMessenger);
 	~PhysicsList(){;};
 
 	//Set cuts per region!
@@ -17,6 +18,8 @@ private:
 	G4double fCutForElectron;
 	G4double fCutForPositron;
 	G4double fCutForProton;
+	
+	G4bool usingRegion;
 };
 
 #endif
