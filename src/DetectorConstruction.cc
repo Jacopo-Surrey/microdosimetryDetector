@@ -578,9 +578,10 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 
 	// put them in place
 	G4ThreeVector SVposition = {0., 0., SVthickness};	//position of the first edge (left)
-	G4ThreeVector fePosition = {0., 0., 2.*SVthickness + feThickness};
-	G4ThreeVector pDposition = {0., 0., -pDthickness};
+	G4ThreeVector fePosition = {0., 0., -feThickness};
+	G4ThreeVector pDposition = {0., 0., 2.*SVthickness + pDthickness};
 	
+	// if there are multiple sensitive volumes, each needs its own x-coordinate
 	G4double* SVposition_x = new G4double[ nOfSV ];
 	
 	if( nOfSV == 4 )
@@ -632,7 +633,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	
 	G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
 	
-	G4ThreeVector subPosition = {0,0, -2.*pDthickness -sub_z};
+	G4ThreeVector subPosition = {0,0, 2.*SVthickness + 2.*pDthickness +sub_z};
 	
 	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
 				logical_motherVolumeForDetector,
