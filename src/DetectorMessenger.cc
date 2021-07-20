@@ -128,7 +128,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 
 	if( command == changeTheDetectorCmd )
 	{
-		if( commandContent == "Diamond" || commandContent == "MicroDiamond" || commandContent == "Silicon" )
+		if( commandContent == "Diamond" || commandContent == "MicroDiamond" || commandContent == "Telescope" || commandContent == "Silicon" )
 		{
 			detectorType = commandContent;
 			

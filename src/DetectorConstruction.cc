@@ -95,6 +95,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	
 	else if( detectorType == "MicroDiamond" ) ConstructMicroDiamondDetector();
 	
+	else if( detectorType == "Telescope" ) ConstructMicroDiamondDetector();
+	
 	else if( detectorType == "Silicon" ) ConstructSiliconDetector();
 	
 	else
@@ -644,6 +646,15 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	logical_sub -> SetVisAttributes(subColour);
 	
 	delete SVposition_x;
+}
+
+void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be written by Gabriele (?)
+{
+	// READ ME BEFORE EDITING:
+	// use logical_motherVolumeForDetector as if it were the world volume
+	// don't return anything at the end calling function takes care of that
+	// call the logical volume where you take the microdosimetric spectrum SV_log
+	// call the other stage whatever you want
 }
 
 void DetectorConstruction::ConstructSiliconDetector()	// change return value   --- COMMENTED OUT!!!
