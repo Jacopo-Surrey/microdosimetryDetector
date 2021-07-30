@@ -73,6 +73,7 @@ private:
 	
 	void ConstructDiamondDetector();	// SCRIVIMI
 	void ConstructMicroDiamondDetector(); // wip
+	void ConstructWPMicroDiamondDetector(); // stub, per Gabriele
 	void ConstructTelescopeDetector(); // stub, per Gabriele
 	void ConstructSiliconDetector();	// SCRIVIMI
 };

@@ -34,6 +34,7 @@
 #include "G4Material.hh"
 #include "G4PVPlacement.hh"
 #include "G4LogicalVolume.hh"
+#include "G4CSGSolid.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 //#include "G4SubtractionSolid.hh"
@@ -94,8 +95,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	if( detectorType == "Diamond" ) ConstructDiamondDetector();
 	
 	else if( detectorType == "MicroDiamond" ) ConstructMicroDiamondDetector();
+
+	else if( detectorType == "WPMicroDiamond" ) ConstructWPMicroDiamondDetector(); // WaterProofMicroDiamond looks too long for me...we can find a better name than WPMicroDiamond anyway...
 	
-	else if( detectorType == "Telescope" ) ConstructMicroDiamondDetector();
+	else if( detectorType == "Telescope" ) ConstructTelescopeDetector();
 	
 	else if( detectorType == "Silicon" ) ConstructSiliconDetector();
 	
@@ -179,6 +182,16 @@ void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according
 	G4double highPVol_x = 11.*mm /2.; 	// SET DEPENDING ON SIZE OF DETECTOR
 	G4double highPVol_y = 11.*mm /2.;
 	G4double highPVol_z = 6.*mm /2.;
+
+	// Ensure when using WaterProof Microdos the HighP region is bigger than the Epoxy case region
+	if( detectorType == "WPMicroDiamond" )
+	{
+		// SET DEPENDING ON SIZE OF EPOXY CASE when implemented the dependance
+		// for now set to 8mm (fixed epoxy dimensions) + 1mm
+		highPVol_x = 9.*mm/2.;
+		highPVol_y = 9.*mm/2.;
+		highPVol_z = 10.*mm/2.; //the thickness should be according to the epoxy case as well, for now I just set it to an arbitrary big value
+	}
 
 	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
  
@@ -639,6 +652,205 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	
 	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
 				logical_motherVolumeForDetector,
+				false, 0, true);
+
+	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
+	subColour.SetForceSolid(false);
+	logical_sub -> SetVisAttributes(subColour);
+	
+	delete SVposition_x;
+}
+
+
+void DetectorConstruction::ConstructWPMicroDiamondDetector()
+{
+	// READ ME BEFORE EDITING:
+	// use logical_motherVolumeForDetector as if it were the world volume
+	// don't return anything at the end calling function takes care of that
+	// call the logical volume where you take the microdosimetric spectrum SV_log
+	// call the other stage whatever you want
+
+	//Define each individual element
+	//Define Nitrogen
+	//G4double A = 14.01 * g/mole;
+	//G4double Z = 7;
+	//G4Element* elN = new G4Element ("Nitrogen", "N", Z, A);
+
+	//Define Boron
+	G4double A = 10.8 * g/mole;
+	G4double Z = 5;
+	G4Element* elB = new G4Element ("Boron", "B", Z, A);
+
+	//Define Oxygen
+	A = 16.0 * g/mole;
+	Z = 8;
+	G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
+
+	//Define Hydrogen 
+	A = 1.01 * g/mole;
+	Z = 1;
+	G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
+
+	//Define Chlorine
+	A= 35.453 * g/mole;
+	Z= 17;
+	G4Element* elCl = new G4Element ("Chlorine", "Cl", Z, A);
+
+
+	//Define Carbon
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Element* elC = new G4Element ("Carbon", "C", Z, A);
+
+	//Define Air   
+	//G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
+	//Air -> AddElement(elN, 70*perCent);
+	//Air -> AddElement(elO, 30*perCent);
+
+	//Define diamond
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Material* diamond = new G4Material("diamond", Z, A, 3.515*g/cm3);
+			
+	//Define p-type diamond (boron doped diamond)
+	G4Material* p_diamond = new G4Material("p_diamond", 3.514*g/cm3, 2);
+	// Boron concentration used is 1e20 cm-3, considering the diamond density and a Boron atomic weight of 10.811u
+	p_diamond -> AddElement(elC, 99.94887*perCent);
+	p_diamond -> AddElement(elB, 0.05113*perCent);
+	
+	//Define chromium contact
+	G4Material* chromium = G4NistManager::Instance()->FindOrBuildMaterial("G4_Cr");
+
+	// define Epoxy resin
+	G4Material* epoxy = new G4Material("epoxy", 1.0772*g/cm3, 4);
+	epoxy -> AddElement(elC, 21);
+	epoxy -> AddElement(elH, 25);
+	epoxy -> AddElement(elCl, 1);
+	epoxy -> AddElement(elO, 5);
+	
+	// sentive volume
+	G4double SVradius = detectorSizeWidth /2.; // ?? Should we leave Width also if it is a diameter?
+	G4double SVthickness = detectorSizeThickness /2.;
+	G4double SVspacing = 200.*um; //edge-edge distance
+	
+	G4CSGSolid* SV_cyl = new G4Tubs("SV_cyl", 0.*mm, SVradius, SVthickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_SV = new G4LogicalVolume(SV_cyl, diamond, "SV_log", 0,0,0);
+	
+	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
+	SVcolour.SetForceSolid(true);
+	logical_SV -> SetVisAttributes(SVcolour);
+
+	// chromium front-electrode
+	G4double feThickness = 50.*nm /2.; // front-electrode thickness
+
+	G4CSGSolid* fe_cyl = new G4Tubs("frontElec_cyl", 0.*mm, SVradius, feThickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_fe = new G4LogicalVolume(fe_cyl, chromium, "frontElec_log", 0,0,0);
+	
+	G4VisAttributes fe_colour(G4Colour::Brown());
+	fe_colour.SetForceSolid(false);
+	logical_fe -> SetVisAttributes(fe_colour);
+
+	// p-type diamond
+	G4double pDthickness = 1.*um /2.; // p-type diamond back-electrode thickness
+	
+	G4CSGSolid* pD_cyl = new G4Tubs("pDiam_cyl", 0.*mm, SVradius, pDthickness, 0*deg, 360*deg);
+	
+	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_cyl, p_diamond, "pDiam_box", 0,0,0);
+	
+	G4VisAttributes pDcolour(G4Colour::Blue());
+	pDcolour.SetForceSolid(false);
+	
+	logical_pD -> SetVisAttributes(pDcolour);
+
+	// HPHT diamond substrate set dimensions (needed for wpCase)
+
+	// ?? Consider its dimensions (side length) as double the SV diameter; the substrate dimension it's not actually dependent of the SV dimensions, it's kind of a standard value I reckon. Anyway it should not influence the results at a point where it is worth complicating its construction.
+	G4double subs_side = 2*SVradius;
+	G4double sub_z = 500.*micrometer /2.; 
+
+	// epoxy case
+	G4double deadLayer = 700.*um;
+	// ?? epoxy case has fixed dimensions, so I check on the SV diameter and impose it to be = epoxy thickness if its diameter is chosen to be larger by the user from the macro file
+	G4double wpCase_radius = 8.*mm /2.; // 8mm in diameter
+	if( wpCase_radius < SVradius )
+	{
+		G4cout << "WARNING: " << detectorType << " can have a diameter of maximum 8mm which is the dimension of the water-proof epoxy case. -> 8mm diameter is used instead of " << SVradius*mm <<" mm.";
+		SVradius = wpCase_radius; 
+	}
+	// epoxy case thickness is 32mm ish...since its back part would barely affect the simulation results, considering that we are also neglecting the electronic connector (which would affect the results surely more than the epoxy case (but still in a negligible manner)) than I consider it to be the sum of the dead-layer in front of the detector, all detector layers and an additional 0.5mm
+	G4double wpCase_thickness = deadLayer + feThickness + SVthickness + pDthickness + sub_z+500.*um;
+
+	G4CSGSolid* wpCase = new G4Tubs("wp_case", 0.*mm, wpCase_radius, wpCase_thickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_wpCase = new G4LogicalVolume(wpCase, epoxy, "wp_case_log", 0,0,0);
+
+	G4VisAttributes wpCase_colour(G4Colour::Cyan());
+	wpCase_colour.SetForceSolid(false);
+	
+	logical_wpCase -> SetVisAttributes(wpCase_colour);
+
+	// put them in place
+	G4ThreeVector wpCasePosition = {0., 0., wpCase_thickness};	//position of the first edge (left)
+	G4ThreeVector SVposition = {0., 0., -wpCase_thickness + deadLayer + SVthickness};	//position set considiering it will be placed inside the water-proof epoxy case
+	G4ThreeVector fePosition = {0., 0., -wpCase_thickness + deadLayer - feThickness};
+	G4ThreeVector pDposition = {0., 0., -wpCase_thickness + deadLayer + 2.*SVthickness + pDthickness};
+	
+	// ?? not sure about how to set the nOfSV = 1, probably it has to be fixed at an earlier stage...I've currently arranged it like this:
+	if( nOfSV == 4 )
+	{
+		G4cout << "WARNING: " << detectorType << " has not multiple Sensitive Volumes; a single Sensitive Volume is used instead.";
+		nOfSV = 1;
+	}
+
+	G4double* SVposition_x = new G4double[ nOfSV ];
+	SVposition_x[0] = 0.;
+
+	std::ostringstream PVName;
+	for( int i=0; i<nOfSV; i++)
+	{	
+		// epoxy case
+		PVName << "wpCase_phys";
+		new G4PVPlacement(0, wpCasePosition, logical_wpCase, PVName.str(),
+					logical_motherVolumeForDetector,
+					false, 0, true);
+		PVName.str("");	//reset the string
+		// sensitive volume
+		SVposition[0] = SVposition_x[i];
+		PVName << "SV_phys_" << (i+1) ;
+		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
+					logical_wpCase,
+					false, 0, true);
+		PVName.str("");	//reset the string
+		
+		// chromium front-electrode
+		PVName << "frontElec_phys_" << (i+1);
+		fePosition[0] = SVposition[0];
+		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
+					logical_wpCase,
+					false, 0, true);
+		PVName.str("");
+		
+		// p-type diamond back-electrode
+		PVName << "pD_phys_" << (i+1);
+		pDposition[0] = SVposition[0];
+		new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
+					logical_wpCase,
+					false, 0, true);
+		PVName.str("");		
+	}
+
+	// HPHT diamond substrate build volume
+	
+	G4Box* sub_box = new G4Box("sub_box", subs_side, subs_side, sub_z);
+	
+	G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
+	
+	G4ThreeVector subPosition = {0,0, -wpCase_thickness + deadLayer + 2.*SVthickness + 2.*pDthickness +sub_z};
+	
+	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
+				logical_wpCase,
 				false, 0, true);
 
 	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
