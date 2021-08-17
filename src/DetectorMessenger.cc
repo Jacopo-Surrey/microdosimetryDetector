@@ -67,12 +67,28 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorDimensionDir -> SetGuidance("Modify the dimensions of the detector");
 	
 	changeDetectorSizeWidthCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setWidth", this);
-	changeDetectorSizeWidthCmd -> SetGuidance("Set the width of the detector");
+	changeDetectorSizeWidthCmd -> SetGuidance("Set the width of the detector (DE stage in case of telescope detector)");
 	changeDetectorSizeWidthCmd -> SetParameterName("Width", false);
 	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 1000.");	// DOES IT MAKE SENSE???
 	changeDetectorSizeWidthCmd -> SetUnitCategory("Length");
 	changeDetectorSizeWidthCmd -> SetDefaultUnit("um");
 	changeDetectorSizeWidthCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+
+	changeSecondStageSizeDimCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setSecondStageDim", this);
+	changeSecondStageSizeDimCmd -> SetGuidance("Set the dimension (diameter) of the second-stage (telescope detector only)");
+	changeSecondStageSizeDimCmd -> SetParameterName("Diameter", true);
+	changeSecondStageSizeDimCmd -> SetRange("Diameter >= 0.1 && Diameter <= 1000.");	// DOES IT MAKE SENSE???
+	changeSecondStageSizeDimCmd -> SetUnitCategory("Length");
+	changeSecondStageSizeDimCmd -> SetDefaultUnit("um");
+	changeSecondStageSizeDimCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+
+	changeSecondStageThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setSecondStageThickness", this);
+	changeSecondStageThicknessCmd -> SetGuidance("Set the thickness of the second-stage (telescope detector only)");
+	changeSecondStageThicknessCmd -> SetParameterName("Thickness", true);
+	changeSecondStageThicknessCmd -> SetRange("Thickness >= 10. && Thickness <= 1000.");	// DOES IT MAKE SENSE???
+	changeSecondStageThicknessCmd -> SetUnitCategory("Length");
+	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
+	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
 	changeDetectorSizeThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setThickness", this);
 	changeDetectorSizeThicknessCmd -> SetGuidance("Set the thickness of the detector");
@@ -102,6 +118,8 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorType = "MicroDiamond";
 	detectorDepth = 10*mm;
 	detectorWidth = 100.*um;
+	secondStageDim = 500.*um;
+	secondStageThickness = 500.*um;
 	detectorThickness = 8.*um;
 	usingPhantom = true;	// FIX ME: currently the program crashes at various stages if this is set to false
 	multiSV = false;
@@ -112,6 +130,8 @@ DetectorMessenger::~DetectorMessenger()
     delete changeTheDetectorCmd;
 	delete changeDetectorPositionDepthCmd;
 	delete changeDetectorSizeWidthCmd;
+	delete changeSecondStageSizeDimCmd;
+	delete changeSecondStageThicknessCmd;
 	delete changeDetectorSizeThicknessCmd;
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
@@ -163,6 +183,22 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		detectorWidth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Detector width changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+	}
+
+	else if( command == changeSecondStageSizeDimCmd )
+	{
+		secondStageDim = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Second-stage (telescope detector) diameter changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+	}
+
+	else if( command == changeSecondStageThicknessCmd )
+	{
+		secondStageThickness = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Second-stage (telescope detector) thickness changed to " << commandContent << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 	}
 	

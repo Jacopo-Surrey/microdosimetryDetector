@@ -64,6 +64,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	detectorPositionDepth = messenger -> GetDetectorPositionDepth();
 	detectorSizeWidth = messenger -> GetDetectorSizeWidth();
 	detectorSizeThickness = messenger -> GetDetectorSizeThickness();
+	secondStageSizeDim = messenger -> GetSecondStageSizeDim();
+	secondStageThickness = messenger -> GetSecondStageThickness();
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();
 		
@@ -913,9 +915,7 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 
 	// the intrinsic-diamond crystal diameter is bigger than the SV (which is defined by the dimension of the front-electrode). Since the E stage diameter is bigger than the DE diameter, I define the whole crystal in which to place the DE SV in order to have the correct layers above each part of the E-stage SV. To simplify the geometry the intrinsic-dimaond crystal for the DE is made of the same dimensions of the E-stage SV
 
-	// !! CHANGE TO BE MADE: let the E dimension be specified in the macro as for the DE dimension.
-	G4double secondStageSizeDim = 500.*um; // diameter
-	// check if it is bigger than the DE diameter and set it to the DE double if not.
+	// check if the diameter of the E-stage is bigger than the DE diameter and set it to the DE double if not.
 	if( secondStageSizeDim <= detectorSizeWidth )
 	{
 		secondStageSizeDim = 2*detectorSizeWidth;
@@ -923,9 +923,9 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 
 	// DE intrinsic-diamond crystal
 	G4double DECrystal_radius = secondStageSizeDim /2.;
-	G4double DECrystal_thickness = detectorSizeThickness /2.; // same thickness as the SV.
+	// same thickness as the SV.
 	
-	G4CSGSolid* DE_cryst_cyl = new G4Tubs("DE_cryst_cyl", 0.*mm, DECrystal_radius, DECrystal_thickness, 0*deg, 360*deg);
+	G4CSGSolid* DE_cryst_cyl = new G4Tubs("DE_cryst_cyl", 0.*mm, DECrystal_radius, SV_DE_thickness, 0*deg, 360*deg);
 
 	G4LogicalVolume* logical_DE_cryst = new G4LogicalVolume(DE_cryst_cyl, diamond, "DE_cryst_log", 0,0,0);
 	
@@ -934,7 +934,7 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 	logical_DE_cryst -> SetVisAttributes(DECryst_colour);
 
 	// E stage
-	G4double SV_E_thickness = 500.*um;
+	G4double SV_E_thickness = secondStageThickness /2.;
 	G4double SV_E_radius = secondStageSizeDim /2.;
 
 	G4CSGSolid* SV_E_cyl = new G4Tubs("SV_E_cyl", 0.*mm, SV_E_radius, SV_E_thickness, 0*deg, 360*deg);
@@ -978,7 +978,8 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 	logical_pD -> SetVisAttributes(pDcolour);
 
 	// put them in place
-	G4ThreeVector SVposition = {0., 0., SV_DE_thickness};
+	G4ThreeVector DE_cryst_position = {0., 0., SV_DE_thickness};
+	G4ThreeVector SVposition = {0., 0., 0.}; // the z is zero as it is positioned into the DE crystal which has the same thickness, so it has to be positioned in its center
 	G4ThreeVector fePosition = {0., 0., -feThickness};
 	G4ThreeVector pDposition = {0., 0., 2.*SV_DE_thickness + pDthickness};
 	G4ThreeVector SV_E_position = {0., 0., 2.*SV_DE_thickness + 2.*pDthickness + SV_E_thickness};
@@ -993,18 +994,14 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 	G4double* SVposition_x = new G4double[ nOfSV ];
 	SVposition_x[0] = 0.;
 
+	// DE crystal
+	new G4PVPlacement(0, DE_cryst_position, logical_DE_cryst, "DEstageCrystal_phys",
+				logical_motherVolumeForDetector,
+				false, 0, true);
 	// I would keep this structure of the SV placement script so that if we ever need to build a multi-SV telescope it will be easier.
 	std::ostringstream PVName;
 	for( int i=0; i<nOfSV; i++)
 	{	
-		// DE crystal
-		PVName << "DEstageCrystal_phys";
-		// being of the same thickness its position is the same as the SV. Also in case of multi-SV placed at different x, at this stage the SVposition is still centered at {0,0,SVthickness} so it would place it in a centered position.
-		new G4PVPlacement(0, SVposition, logical_DE_cryst, PVName.str(),
-					logical_motherVolumeForDetector,
-					false, 0, true);
-		PVName.str("");	//reset the string
-
 		// sensitive volume DE
 		SVposition[0] = SVposition_x[i];
 		PVName << "SV_phys_" << (i+1) ;

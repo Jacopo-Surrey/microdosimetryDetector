@@ -57,6 +57,8 @@ public:
   G4double GetDetectorPositionDepth() { return detectorDepth; }
   G4double GetDetectorSizeWidth() { return detectorWidth; }
   G4double GetDetectorSizeThickness() { return detectorThickness; }
+  G4double GetSecondStageSizeDim() { return secondStageDim; }
+  G4double GetSecondStageThickness() { return secondStageThickness; }
   G4bool GetUsingPhantomBool() { return usingPhantom; }
   G4bool GetMultiSVBool() { return multiSV; }
   
@@ -68,6 +70,8 @@ private:
   G4UIcmdWithAString *changeTheDetectorCmd; ///> Select the detector type
   G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	
   G4UIcmdWithADoubleAndUnit *changeDetectorSizeWidthCmd;
+  G4UIcmdWithADoubleAndUnit *changeSecondStageSizeDimCmd;
+  G4UIcmdWithADoubleAndUnit *changeSecondStageThicknessCmd;
   G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
   G4UIcmdWithABool *enableWaterPhantomCmd;
   G4UIcmdWithABool *useMultipleSVCmd;
@@ -80,6 +84,8 @@ private:
   G4String detectorType;
   G4double detectorDepth;
   G4double detectorWidth;
+  G4double secondStageDim;
+  G4double secondStageThickness;
   G4double detectorThickness;
   G4bool usingPhantom;
   G4bool multiSV;
