@@ -584,7 +584,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	
 	G4Box* pD_box = new G4Box("pDiam_box", SVside, SVside, pDthickness);
 	
-	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_box, p_diamond, "pDiam_box", 0,0,0);
+	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_box, p_diamond, "pDiam_log", 0,0,0);
 	
 	G4VisAttributes pDcolour(G4Colour::Blue());
 	pDcolour.SetForceSolid(false);
@@ -757,7 +757,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	
 	G4CSGSolid* pD_cyl = new G4Tubs("pDiam_cyl", 0.*mm, SVradius, pDthickness, 0*deg, 360*deg);
 	
-	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_cyl, p_diamond, "pDiam_box", 0,0,0);
+	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_cyl, p_diamond, "pDiam_log", 0,0,0);
 	
 	G4VisAttributes pDcolour(G4Colour::Blue());
 	pDcolour.SetForceSolid(false);
@@ -867,6 +867,180 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 	// don't return anything at the end calling function takes care of that
 	// call the logical volume where you take the microdosimetric spectrum SV_log
 	// call the other stage whatever you want
+
+	//Define Boron
+	G4double A = 10.8 * g/mole;
+	G4double Z = 5;
+	G4Element* elB = new G4Element ("Boron", "B", Z, A);
+
+
+	//Define Carbon
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Element* elC = new G4Element ("Carbon", "C", Z, A);
+
+	//Define Air   
+	//G4Material* Air = new G4Material("Air", 1.29*mg/cm3, 2);
+	//Air -> AddElement(elN, 70*perCent);
+	//Air -> AddElement(elO, 30*perCent);
+
+	//Define diamond
+	A = 12.01 * g/mole;
+	Z = 6;
+	G4Material* diamond = new G4Material("diamond", Z, A, 3.515*g/cm3);
+			
+	//Define p-type diamond (boron doped diamond)
+	G4Material* p_diamond = new G4Material("p_diamond", 3.514*g/cm3, 2);
+	// Boron concentration used is 1e20 cm-3, considering the diamond density and a Boron atomic weight of 10.811u
+	p_diamond -> AddElement(elC, 99.94887*perCent);
+	p_diamond -> AddElement(elB, 0.05113*perCent);
+	
+	//Define chromium contact
+	G4Material* chromium = G4NistManager::Instance()->FindOrBuildMaterial("G4_Cr");
+	
+	// sentive volumes (and surroundings)
+	// DE
+	G4double SV_DE_radius = detectorSizeWidth /2.; // ?? Should we leave Width also if it is a diameter?
+	G4double SV_DE_thickness = detectorSizeThickness /2.;
+	
+	G4CSGSolid* SV_DE_cyl = new G4Tubs("SV_DE_cyl", 0.*mm, SV_DE_radius, SV_DE_thickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_SV = new G4LogicalVolume(SV_DE_cyl, diamond, "SV_log", 0,0,0);
+	
+	G4VisAttributes SVcolour(G4Colour(0.5, 0.5, 0.5));
+	SVcolour.SetForceSolid(true);
+	logical_SV -> SetVisAttributes(SVcolour);
+
+	// the intrinsic-diamond crystal diameter is bigger than the SV (which is defined by the dimension of the front-electrode). Since the E stage diameter is bigger than the DE diameter, I define the whole crystal in which to place the DE SV in order to have the correct layers above each part of the E-stage SV. To simplify the geometry the intrinsic-dimaond crystal for the DE is made of the same dimensions of the E-stage SV
+
+	// !! CHANGE TO BE MADE: let the E dimension be specified in the macro as for the DE dimension.
+	G4double secondStageSizeDim = 500.*um; // diameter
+	// check if it is bigger than the DE diameter and set it to the DE double if not.
+	if( secondStageSizeDim <= detectorSizeWidth )
+	{
+		secondStageSizeDim = 2*detectorSizeWidth;
+	}
+
+	// DE intrinsic-diamond crystal
+	G4double DECrystal_radius = secondStageSizeDim /2.;
+	G4double DECrystal_thickness = detectorSizeThickness /2.; // same thickness as the SV.
+	
+	G4CSGSolid* DE_cryst_cyl = new G4Tubs("DE_cryst_cyl", 0.*mm, DECrystal_radius, DECrystal_thickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_DE_cryst = new G4LogicalVolume(DE_cryst_cyl, diamond, "DE_cryst_log", 0,0,0);
+	
+	G4VisAttributes DECryst_colour(G4Colour::White());
+	DECryst_colour.SetForceSolid(false);
+	logical_DE_cryst -> SetVisAttributes(DECryst_colour);
+
+	// E stage
+	G4double SV_E_thickness = 500.*um;
+	G4double SV_E_radius = secondStageSizeDim /2.;
+
+	G4CSGSolid* SV_E_cyl = new G4Tubs("SV_E_cyl", 0.*mm, SV_E_radius, SV_E_thickness, 0*deg, 360*deg);
+	G4LogicalVolume* logical_SV_Estage = new G4LogicalVolume(SV_E_cyl, diamond, "SV_Estage_log", 0,0,0);
+	
+	G4VisAttributes SV_E_colour(G4Colour(0.5, 0.5, 0.5));
+	SV_E_colour.SetForceSolid(true);
+	logical_SV_Estage -> SetVisAttributes(SV_E_colour);
+
+	// chromium front-electrode
+	G4double feThickness = 50.*nm /2.; // front-electrode thickness
+
+	G4CSGSolid* fe_cyl = new G4Tubs("frontElec_cyl", 0.*mm, SV_DE_radius, feThickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_fe = new G4LogicalVolume(fe_cyl, chromium, "frontElec_log", 0,0,0);
+	
+	G4VisAttributes fe_colour(G4Colour::Brown());
+	fe_colour.SetForceSolid(false);
+	logical_fe -> SetVisAttributes(fe_colour);
+
+	// chromium back-electrode
+	G4CSGSolid* fe_cyl_back = new G4Tubs("backElec_cyl", 0.*mm, SV_E_radius, feThickness, 0*deg, 360*deg);
+
+	G4LogicalVolume* logical_fe_back = new G4LogicalVolume(fe_cyl_back, chromium, "backElec_log", 0,0,0);
+	
+//	G4VisAttributes fe_colour(G4Colour::Brown());
+//	fe_colour.SetForceSolid(false);
+	logical_fe_back -> SetVisAttributes(fe_colour);
+
+	// p-type diamond
+	G4double pDthickness = 1.*um /2.; // p-type diamond back-electrode thickness
+	//p-type diamond layer has the same dimension as the intrinsic crystal (so as the E-stage for how the geometry is built)
+	
+	G4CSGSolid* pD_cyl = new G4Tubs("pDiam_cyl", 0.*mm, DECrystal_radius, pDthickness, 0*deg, 360*deg);
+	
+	G4LogicalVolume* logical_pD = new G4LogicalVolume(pD_cyl, p_diamond, "pDiam_log", 0,0,0);
+	
+	G4VisAttributes pDcolour(G4Colour::Blue());
+	pDcolour.SetForceSolid(false);
+	
+	logical_pD -> SetVisAttributes(pDcolour);
+
+	// put them in place
+	G4ThreeVector SVposition = {0., 0., SV_DE_thickness};
+	G4ThreeVector fePosition = {0., 0., -feThickness};
+	G4ThreeVector pDposition = {0., 0., 2.*SV_DE_thickness + pDthickness};
+	G4ThreeVector SV_E_position = {0., 0., 2.*SV_DE_thickness + 2.*pDthickness + SV_E_thickness};
+	
+	// ?? not sure about how to set the nOfSV = 1, probably it has to be fixed at an earlier stage...I've currently arranged it like this:
+	if( nOfSV == 4 )
+	{
+		G4cout << "WARNING: " << detectorType << " has not multiple Sensitive Volumes; a single Sensitive Volume is used instead.";
+		nOfSV = 1;
+	}
+
+	G4double* SVposition_x = new G4double[ nOfSV ];
+	SVposition_x[0] = 0.;
+
+	// I would keep this structure of the SV placement script so that if we ever need to build a multi-SV telescope it will be easier.
+	std::ostringstream PVName;
+	for( int i=0; i<nOfSV; i++)
+	{	
+		// DE crystal
+		PVName << "DEstageCrystal_phys";
+		// being of the same thickness its position is the same as the SV. Also in case of multi-SV placed at different x, at this stage the SVposition is still centered at {0,0,SVthickness} so it would place it in a centered position.
+		new G4PVPlacement(0, SVposition, logical_DE_cryst, PVName.str(),
+					logical_motherVolumeForDetector,
+					false, 0, true);
+		PVName.str("");	//reset the string
+
+		// sensitive volume DE
+		SVposition[0] = SVposition_x[i];
+		PVName << "SV_phys_" << (i+1) ;
+		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
+					logical_DE_cryst,
+					false, 0, true);
+		PVName.str("");	//reset the string
+		
+		// chromium front-electrode
+		PVName << "frontElec_phys_" << (i+1);
+		fePosition[0] = SVposition[0];
+		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
+					logical_motherVolumeForDetector,
+					false, 0, true);
+		PVName.str("");	
+	}
+		
+	// p-type diamond back-electrode (NB The p-type diamond layer extends over the whole intrinsic-dimaond crystal
+	new G4PVPlacement(0, pDposition, logical_pD, "pD_phys",
+				logical_motherVolumeForDetector,
+				false, 0, true);
+		
+	// E-stage
+	new G4PVPlacement(0, SV_E_position, logical_SV_Estage, "SV_Estage_phys",
+				logical_motherVolumeForDetector,
+				false, 0, true);
+
+	// back electrode
+	
+	G4ThreeVector backElectrodePosition = {0,0, 2.*SV_DE_thickness + 2.*pDthickness + 2.*SV_E_thickness +feThickness};
+	
+	new G4PVPlacement(0, backElectrodePosition, logical_fe_back, "backElec_phys",
+				logical_motherVolumeForDetector,
+				false, 0, true);
+	
+	delete SVposition_x;
 }
 
 void DetectorConstruction::ConstructSiliconDetector()	// change return value   --- COMMENTED OUT!!!
