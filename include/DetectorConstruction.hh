@@ -59,6 +59,8 @@ private:
 	G4double detectorPositionDepth;
 	G4double detectorSizeWidth;
 	G4double detectorSizeThickness;
+	G4double secondStageSizeDim;
+	G4double secondStageThickness;
 	G4bool usingPhantom;
 	G4bool multiSV;
 	G4int nOfSV;
