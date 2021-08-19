@@ -918,7 +918,10 @@ void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be writte
 	// check if the diameter of the E-stage is bigger than the DE diameter and set it to the DE double if not.
 	if( secondStageSizeDim <= detectorSizeWidth )
 	{
+		G4cout << "WARNING: the telescope E-stage diameter set (" << secondStageSizeDim << ") is smaller than the DE-stage diameter (" << detectorSizeWidth << ").";
+		G4cout << "To be compliant with the telescope structure, it has to be at least the same dimension.";
 		secondStageSizeDim = 2*detectorSizeWidth;
+		G4cout << "E-stage diameter set to default as double the DE-stage diameter: " << secondStageSizeDim << ".";
 	}
 
 	// DE intrinsic-diamond crystal
