@@ -97,15 +97,10 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 	
 	// only consider ions, protons, and neutrons for path length
 	G4String particleName = aStep -> GetTrack() -> GetParticleDefinition() -> GetParticleName();
+	G4int particleZ = aStep -> GetTrack() -> GetParticleDefinition() -> GetAtomicNumber();
 	
-	if ( (particleName != "proton") &&
-			(particleName != "neutron") &&
-			(particleName != "alpha") &&
-			(particleName != "deuton") && 
-			(particleName != "triton") && 
-			(particleName != "He3") && 
-			(particleName !="GenericIon") )
-				len = 0.;	
+	if ( (particleZ < 1) && (particleName != "neutron"))
+		len = 0.;
 
 	newHit->SetPath(len);
 	
