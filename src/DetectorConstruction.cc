@@ -117,29 +117,33 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according to comments    &      check that Region is working       is the size big enough for every detector type??????
 {
+	//Define Vacuum
+	G4double A = 1.01*g/mole;
+	G4double Z = 1.;
+	G4double vacuumDensity = 1.e-25 *g/cm3;
+	G4double pressure = 3.e-18*pascal;
+	G4double temperature = 2.73*kelvin;
+	G4Material* vacuum = new G4Material("Galactic", Z, A,
+			         vacuumDensity,kStateGas,temperature,pressure);
+	
+	/*
 	//Define Hydrogen 
-	G4double A = 1.01 * g/mole;
-	G4double Z = 1;
+	A = 1.01 * g/mole;
+	Z = 1;
 	G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
 	
 	//Define Oxygen
 	A = 16.0 * g/mole;
 	Z = 8;
 	G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
-	
-	//Define Vacuum
-	A = 1.01*g/mole;
-	Z = 1.;
-	G4double vacuumDensity = 1.e-25 *g/cm3;
-	G4double pressure = 3.e-18*pascal;
-	G4double temperature = 2.73*kelvin;
-	G4Material* vacuum = new G4Material("Galactic", Z, A,
-			         vacuumDensity,kStateGas,temperature,pressure);
 
 	//define water
 	G4Material* water = new G4Material("water", 1*g/cm3, 2);
 	water -> AddElement(elH, 2);
 	water -> AddElement(elO, 1);
+	*/
+
+	G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 	
 	//Define volumes
 	// World volume  has size 1cm
@@ -862,7 +866,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	delete SVposition_x;
 }
 
-void DetectorConstruction::ConstructTelescopeDetector()		// stub, will be written by Gabriele (?)
+void DetectorConstruction::ConstructTelescopeDetector()
 {
 	// READ ME BEFORE EDITING:
 	// use logical_motherVolumeForDetector as if it were the world volume
