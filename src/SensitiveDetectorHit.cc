@@ -42,7 +42,7 @@ G4ThreadLocal G4Allocator<SensitiveDetectorHit>* SensitiveDetectorHitAllocator=0
 
 SensitiveDetectorHit::SensitiveDetectorHit()
 	: G4VHit(),
-	fEdep(0.), fPath(0.)
+	fEdep(0.), fPath(0.), iZZ(0)
 {}
 
 SensitiveDetectorHit::~SensitiveDetectorHit() {}
@@ -52,12 +52,14 @@ SensitiveDetectorHit::SensitiveDetectorHit(const SensitiveDetectorHit& right)
 {
 	fEdep = right.fEdep;
 	fPath = right.fPath;
+	iZZ = right.iZZ;
 }
 
 const SensitiveDetectorHit& SensitiveDetectorHit::operator=(const SensitiveDetectorHit& right)
 {
 	fEdep = right.fEdep;
 	fPath = right.fPath;
+	iZZ = right.iZZ;
 
 	return *this;
 }
@@ -79,6 +81,8 @@ void SensitiveDetectorHit::Print()
 		<< std::setw(7) << G4BestUnit(fEdep,"Energy")
 		<< "     Path: "
 		<< std::setw(7) << G4BestUnit(fPath,"Length")
+		<< "     part Z: "
+		<< std::setw(7) << iZZ
 		<< G4endl;
 }
 

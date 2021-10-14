@@ -61,11 +61,14 @@ class SensitiveDetectorHit : public G4VHit
 		
 		void SetPath(G4double len) { fPath = len; };
 		G4double GetPath() const { return fPath; };
+		
+		void SetZZ(G4int ZZ) { iZZ = ZZ; };
+		G4int GetZZ() const { return iZZ; };
  
 	private:
-
 		G4double fEdep;
 		G4double fPath;
+		G4int iZZ;
 };
 
 typedef G4THitsCollection<SensitiveDetectorHit> SensitiveDetectorHitsCollection;

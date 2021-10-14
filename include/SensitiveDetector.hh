@@ -37,6 +37,8 @@
 #include "AnalysisManager.hh"
 #include <vector>
 
+#include "G4RunManager.hh"
+
 class G4Step;
 class G4HCofThisEvent;
 
@@ -44,7 +46,9 @@ class SensitiveDetector : public G4VSensitiveDetector
 {
   public:
     SensitiveDetector(const G4String& name, 
-                const G4String& hitsCollectionName, AnalysisManager*);
+                const G4String& hitsCollectionName,
+				G4String sActiveVolumeName,
+				AnalysisManager*);
     virtual ~SensitiveDetector();
   
     // methods from base class

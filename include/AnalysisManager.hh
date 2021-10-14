@@ -48,7 +48,7 @@ public:
 
 	void SetPrimaryEnergy(G4double energy); // Store the energy of the primary particles
 
-	void StoreEnergyDeposition(G4double edep, G4double pathlen);// Fill the ntuple with energy deposition per event
+	void StoreEnergyDeposition(G4double edep, G4double pathlen, G4int zz, G4String activeV, G4int eventID);// Fill the ntuple with energy deposition per event
   
 	void FillSecondaries(G4int AA, G4double charge, G4double energy);	// Information about secondary particles
 

@@ -1201,9 +1201,16 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 
 void DetectorConstruction::ConstructSDandField()
 {
-   SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", analysis);
+   SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", "SV_phys_1", analysis);
    G4SDManager::GetSDMpointer()->AddNewDetector(SD);
    SetSensitiveDetector("SV_log", SD);
 
+   // second stage
+   if( detectorType == "Telescope" )
+   {
+      SensitiveDetector* SDs2 = new SensitiveDetector("SDs2", "DetectorStage2HitsCollection", "SV_Estage_phys", analysis);
+      G4SDManager::GetSDMpointer()->AddNewDetector(SDs2);
+      SetSensitiveDetector("SV_Estage_log", SDs2);
+   }
 
 }

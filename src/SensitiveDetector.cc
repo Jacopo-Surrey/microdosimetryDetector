@@ -39,7 +39,9 @@
 #include "DetectorConstruction.hh"
 
 SensitiveDetector::SensitiveDetector(const G4String& name,
-						const G4String& hitsCollectionName, AnalysisManager* analysis_manager) 
+						const G4String& hitsCollectionName,
+						G4String sActiveVolumeName,
+						AnalysisManager* analysis_manager) 
 	: G4VSensitiveDetector(name),
 	fHitsCollection(NULL)
 {
@@ -51,7 +53,9 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 	//AVname << "SV_phys_" << DetectorConstruction::getActiveSVno();
 	//activeVolumeName = AVname.str();
 	
-	activeVolumeName = "SV_phys_1";
+	//activeVolumeName = "SV_phys_1";
+	
+	activeVolumeName = sActiveVolumeName;
 	
 	// initialize the private variables for primaries energy lost calculation
 	firstStep=true;
@@ -104,6 +108,8 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 
 	newHit->SetPath(len);
 	
+	newHit->SetZZ(particleZ);
+	
 	// Primary kinetic energy storing
 	G4int trackID = aStep -> GetTrack() -> GetTrackID();
 	if (trackID==1) { //if it is a primary particle
@@ -127,24 +133,37 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 	// Initialisation of total energy deposition per event to zero
 	G4double totalEdepInOneEvent=0;
 	G4double totalPathLengthInOneEvent=0;
+	G4int maxZinsideDetector=0;
+	
+	G4int eventID = G4RunManager::GetRunManager() ->
+						GetCurrentEvent() ->
+						GetEventID();
  
 	G4int NbHits = fHitsCollection->entries();
    //G4cout << "number of hits " <<NbHits << G4endl;
    
-	G4double edep; G4double len;
+	G4double edep; G4double len; G4int zz;
 	
 	for (G4int i=0;i<NbHits;i++) 
 	{
 		edep = (*fHitsCollection)[i]->GetEdep();
 		len = (*fHitsCollection)[i]->GetPath();
+		zz = (*fHitsCollection)[i]->GetZZ();
 
 		totalEdepInOneEvent = totalEdepInOneEvent + edep;
 		totalPathLengthInOneEvent = totalPathLengthInOneEvent + len;
+		maxZinsideDetector = std::max( maxZinsideDetector , zz ); 
 	} 
 
 
 	if (totalEdepInOneEvent!=0)
-		analysis-> StoreEnergyDeposition(totalEdepInOneEvent, totalPathLengthInOneEvent);
+		analysis-> StoreEnergyDeposition(
+											totalEdepInOneEvent,
+											totalPathLengthInOneEvent,
+											maxZinsideDetector,
+											activeVolumeName,
+											eventID
+										);
 
 	G4double elost = Ek_in - Ek_out;
 	if (elost>0)
