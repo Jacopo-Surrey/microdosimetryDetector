@@ -170,7 +170,7 @@ void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according
 	//water phantom
 	G4double phantom_x = 300.*mm /2.;
 	G4double phantom_y = 300.*mm /2.;
-	G4double phantom_z = 300.*mm /2.;	// this value is also hardcoded in DetectorMessenger.cc (minus 10.*mm)
+	G4double phantom_z = (detectorPositionDepth + 20.*mm) /2.;	// maximum in DetectorMessenger.cc
 	
 	G4Box* phantom_box = new G4Box("phantom_box", phantom_x, phantom_y, phantom_z);
 	

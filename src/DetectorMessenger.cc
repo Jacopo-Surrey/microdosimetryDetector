@@ -58,7 +58,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorPositionDepthCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorPosition/setDepth", this);
 	changeDetectorPositionDepthCmd -> SetGuidance("Set the detector depth inside the water phantom");
 	changeDetectorPositionDepthCmd -> SetParameterName("Depth", false);
-	changeDetectorPositionDepthCmd -> SetRange("Depth >= 10. && Depth <= 290.");	//the phantom is 300.*mm deep
+	changeDetectorPositionDepthCmd -> SetRange("Depth >= 10. && Depth <= 1000.");
 	changeDetectorPositionDepthCmd -> SetUnitCategory("Length");
 	changeDetectorPositionDepthCmd -> SetDefaultUnit("mm");
 	changeDetectorPositionDepthCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
