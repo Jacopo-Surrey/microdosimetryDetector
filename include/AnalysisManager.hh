@@ -35,7 +35,7 @@
 #include "g4csv.hh"	//comma separated values (output)
 
 // Define the total number of columns in the ntuple
-const G4int MaxNtCol = 9;
+const G4int MaxNtCol = 12;
 
 class AnalysisManager
 { 
