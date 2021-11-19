@@ -32,13 +32,20 @@
 #include "G4UnitsTable.hh"
 #include "G4ios.hh"
 #include "G4Run.hh"
-
+#include "G4AccumulableManager.hh"
+#include "G4RunManager.hh"
 
 RunAction::RunAction(AnalysisManager* analysis)
+: G4UserRunAction(),
+  iHits(0)
 { 
-
   analysisMan = analysis;
 
+  accumulableManager = G4AccumulableManager::Instance();	//see B1
+  accumulableManager -> RegisterAccumulable(iHits);
+  
+  // Minimum value for acceptable statistics
+  hitsRequired = 100000;
 }
 
 RunAction::~RunAction()
@@ -50,6 +57,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
   G4int run_number = aRun->GetRunID();
   G4cout << "### Run " << run_number << " start." << G4endl;
 
+  accumulableManager -> Reset();
 
   // Create ROOT file, histograms and ntuple
   analysisMan -> book();
@@ -63,5 +71,22 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 // Close the output ROOT file with the results
    analysisMan -> finish(); 
 
+}
+
+void RunAction::IncreaseHitCount()
+{
+	iHits += 1;
+	
+	// Make the accumulable thread-safe, in MT
+	// Might be expensive, as it has to be called after
+	// every hit in the SV
+	//accumulableManager->Merge();
+	
+	if( iHits.GetValue() >= hitsRequired )
+	{
+		G4RunManager::GetRunManager() -> AbortRun(true);
+		
+		G4cout << iHits.GetValue() << " reached, stopping run..." << G4endl;
+	}
 }
 

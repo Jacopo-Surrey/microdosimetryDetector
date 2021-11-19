@@ -37,6 +37,8 @@
 #include "G4SystemOfUnits.hh"
 
 #include "DetectorConstruction.hh"
+#include "RunAction.hh"
+#include "G4RunManager.hh"
 
 SensitiveDetector::SensitiveDetector(const G4String& name,
 						const G4String& hitsCollectionName,
@@ -47,6 +49,8 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 {
 	collectionName.insert(hitsCollectionName);
 	analysis = analysis_manager;
+	
+	runAction = (RunAction*)G4RunManager::GetRunManager() -> GetUserRunAction();
 	
 	// retrieve the name of the active volume
 	//std::ostringstream AVname;
@@ -157,6 +161,7 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 
 
 	if (totalEdepInOneEvent!=0)
+	{
 		analysis-> StoreEnergyDeposition(
 											totalEdepInOneEvent,
 											totalPathLengthInOneEvent,
@@ -164,7 +169,10 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 											activeVolumeName,
 											eventID
 										);
-
+	
+	runAction->IncreaseHitCount();
+	}
+	
 	G4double elost = Ek_in - Ek_out;
 	if (elost>0)
 		analysis-> StorePrimaryEnergyLost(elost, Ek_in, Ek_out);

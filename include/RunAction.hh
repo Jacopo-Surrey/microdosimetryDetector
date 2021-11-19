@@ -33,7 +33,10 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 #include "AnalysisManager.hh"
+#include "G4Accumulable.hh"
 #include <map>
+
+class G4AccumulableManager;
 
 class RunAction : public G4UserRunAction
 {
@@ -42,12 +45,26 @@ public:
 
    ~RunAction();
 
-public:
+//public:
     void BeginOfRunAction(const G4Run*);
     void EndOfRunAction(const G4Run*);
 
+	void IncreaseHitCount();
+	// To be called once per event when at least a hit is recorded
+	// inside the detector.
+	// Increments the total number of hits recorded by one,
+	// then check if they have reached hitsRequired, and
+	// if so stops the simulation.
+
 private:
+ // !!! Change the following depending on the desired statistics !!!
+ G4int hitsRequired;
+
+ G4AccumulableManager* accumulableManager;
+ 
  AnalysisManager* analysisMan;
+
+ G4Accumulable<G4int> iHits;
 
 
 };

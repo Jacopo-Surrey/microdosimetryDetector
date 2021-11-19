@@ -33,6 +33,7 @@
 #include "G4RunManager.hh"
 #include "AnalysisManager.hh"
 #include "RunAction.hh"
+//#include "EventAction.hh"
 #include "G4GeneralParticleSource.hh"
 
 ActionInitialization::ActionInitialization(AnalysisManager* analysisMan):
@@ -63,8 +64,10 @@ PrimaryGeneratorAction* primary = new PrimaryGeneratorAction(analysis);
 SetUserAction(primary); 
 
 RunAction* run = new RunAction(analysis);
-
 SetUserAction(run); 
+
+//EventAction* event = new EventAction(run);
+//SetUserAction(event);
 
 SteppingAction* stepping = new SteppingAction(analysis);
 SetUserAction(stepping);

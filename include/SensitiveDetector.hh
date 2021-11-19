@@ -37,10 +37,10 @@
 #include "AnalysisManager.hh"
 #include <vector>
 
-#include "G4RunManager.hh"
-
 class G4Step;
 class G4HCofThisEvent;
+
+class RunAction;
 
 class SensitiveDetector : public G4VSensitiveDetector
 {
@@ -59,6 +59,8 @@ class SensitiveDetector : public G4VSensitiveDetector
   private:
     SensitiveDetectorHitsCollection* fHitsCollection;
     AnalysisManager* analysis;
+	
+	RunAction* runAction;
 	
 	G4String activeVolumeName;
 	// private variable to get the kinetic energy lost by primaries
