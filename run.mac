@@ -4,4 +4,4 @@
 /control/execute gps_beam.mac
 /run/printProgress 1000
 #/random/setSeeds 1 1
-/run/beamOn 100000
+/run/beamOn 1000000000000000
