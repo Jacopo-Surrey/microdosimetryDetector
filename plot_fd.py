@@ -5,11 +5,11 @@ import glob
 def Normalize(f, x) :
 	dx = x[1:] - x[:-1]
 	integral = np.sum(f[:-1] * dx)
-	f_norm = f[:-1] / integral
+	f_norm = f / integral
 	return f_norm
 
-# in cvs each thread outputs to a different file
-# therefore I need to cycle through each thread and append them all together
+# When running in MT and outputting to cvs, each thread outputs to a different file.
+# Therefore I need to cycle through each thread and append them all together.
 
 energy = np.empty([0,1])
 length = np.empty([0,1])
@@ -24,12 +24,37 @@ for this_file in output_list :
 	energy = np.append(energy, energy_thread)
 	length = np.append(length, length_thread)
 
+# Experimentally, the mean path length is calculated geometrically as a mean chord length.
+# Here for convenience it's taken by averaging the effective path lengths.
 mean_path_length = np.average(length)
 
-y = energy / mean_path_length
+# A conversion factor can be used to convert the target material to water or tissue equivalent.
+# Its choice depends on the material and can be calculated in different ways.
+# It is suggested that the user replace the following value with his own.
+conversion_factor = 1.
+
+# If the previous value is not overriden by the user, this script will attempt to read geometry.mac
+# and provide a factor accordingly
+if conversion_factor == 1. :
+	detector = np.array(["Diamond", "MicroDiamond", "Silicon", "SiliconBridge"])
+	factor = np.array([0.32, 0.32, 0.57, 0.57])	# conversion factor based on material stopping power
+	
+	with open("geometry.mac") as search:
+		for line in search:
+			line = line.rstrip()  # remove new line
+			
+			for this in detector :
+				match = "/geometrySetup/selectDetector " + this
+				
+				if match == line:
+					conversion_factor = factor[ detector == this ][0]
 
 
-# define the log binning
+y = energy * conversion_factor / mean_path_length
+
+
+# The spectrum is now binned logarithmically, to avoid oscillations at higher energies
+# (due to fewer counts) that wouldn't much meaning.
 
 minimum = np.amin(y)
 maximum = np.amax(y)
@@ -39,7 +64,10 @@ exp_end = np.ceil(np.log10(maximum))
 
 n_decades = int(exp_end - exp_start)
 
-bins_per_dec = 60	# change this depending on how many points you have
+# Number of logarithmic bins per decade:
+# Higher values give better resolution, but lead to oscillations
+# (especially at high energy) if your statistic has too few counts.
+bins_per_dec = 60
 
 n_bins = n_decades * bins_per_dec
 
@@ -51,9 +79,10 @@ for i in range(1, n_bins) :
 	y_bins[i] = y_bins[i-1] * 10**( 1 / bins_per_dec )
 
 
-# create the histogram
+# Create the histogram
 
-f = np.histogram( y, bins=y_bins ) [0]	# for now f is a number of counts...
+# For now f is a number of counts...
+f = np.histogram( y, bins=y_bins ) [0]
 
 tot_counts = np.sum(f)
 
@@ -63,12 +92,12 @@ f = f / bin_width
 
 f = np.append(f, 0.)	# give f and y_bins arrays the same size
 
-# normalize the spectra
+# Normalize the spectra to unit area under the curve
 f = Normalize(f, y_bins)
 d = Normalize(y_bins*f, y_bins)
 
 
-# save to file
+# Save to file
 
 output_file = "analysed_spectra.csv"
 header = "y[keV/um], f(y)[um/keV], d(y)[um/keV]"
@@ -76,7 +105,7 @@ header = "y[keV/um], f(y)[um/keV], d(y)[um/keV]"
 np.savetxt( output_file, np.c_[ y_bins, f, d ], header=header, delimiter=',' )
 
 
-# plot
+# Plot
 
 fig, ax1 = plt.subplots()
 
@@ -97,7 +126,7 @@ ax2.semilogx( y_bins, y_bins * d, linewidth=0.5, color=color )
 ax2.set_ylabel(r'$y \cdot d(y) $', color=color)
 ax2.tick_params(axis='y', labelcolor=color)
 
-title = str(tot_counts) + " counts, " + str(bins_per_dec) + " bins per decade"
+title = str(tot_counts) + " counts, " + str(bins_per_dec) + " bins per decade, " + str(conversion_factor) + " conversion factor"
 fig.suptitle(title)
 
 fig.tight_layout()

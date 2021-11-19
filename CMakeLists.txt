@@ -41,7 +41,7 @@ target_link_libraries(myProgram ${Geant4_LIBRARIES})
 # relies on these scripts being in the current working directory.
 #
 set(radioprotection_SCRIPTS
-   vis.mac plot_fd.py run.mac gps_beam.mac detector.mac phys.mac
+   vis.mac plot_fd.py get_RBE.py Loncol_weight_function.csv run.mac gps_beam.mac detector.mac phys.mac
   )
 
 foreach(_script ${radioprotection_SCRIPTS})
