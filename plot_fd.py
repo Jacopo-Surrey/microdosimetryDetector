@@ -19,7 +19,7 @@ output_name = ntuple_name + "_t" + "*" + ".csv"
 output_list = glob.glob(output_name)
 
 for this_file in output_list :	
-	energy_thread, length_thread = np.loadtxt(this_file, delimiter=',', unpack=True)
+	energy_thread, length_thread = np.loadtxt(this_file, delimiter=',', unpack=True, usecols=(0,1) )
 	
 	energy = np.append(energy, energy_thread)
 	length = np.append(length, length_thread)
@@ -39,7 +39,7 @@ if conversion_factor == 1. :
 	detector = np.array(["Diamond", "MicroDiamond", "Silicon", "SiliconBridge"])
 	factor = np.array([0.32, 0.32, 0.57, 0.57])	# conversion factor based on material stopping power
 	
-	with open("geometry.mac") as search:
+	with open("detector.mac") as search:
 		for line in search:
 			line = line.rstrip()  # remove new line
 			
