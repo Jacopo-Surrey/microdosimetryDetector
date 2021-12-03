@@ -10,7 +10,8 @@
 #/geometrySetup/detectorDimension/secondStage/setWidth 500 um
 #/geometrySetup/detectorDimension/secondStage/setThickness 500 um
 
-/geometrySetup/useMultipleSV false
+/geometrySetup/useMultipleSV true
+/geometrySetup/multipleSVsetup/setBreadth 5000 um
 
 /geometrySetup/detectorPosition/setDepth 10 mm
 

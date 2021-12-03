@@ -55,28 +55,38 @@ private:
 	AnalysisManager* analysis;
 	DetectorMessenger* messenger;
 	
-	G4String detectorType;	
+	G4String detectorType;
+	
 	G4double detectorPositionDepth;
+	
 	G4double detectorSizeWidth;
 	G4double detectorSizeThickness;
 	G4double secondStageSizeDim;
 	G4double secondStageThickness;
+	
 	G4bool usingPhantom;
+	
 	G4bool multiSV;
-	G4int nOfSV;
+	G4double multiSVbreadth;
+	G4double SVspacing;
+	G4int nOfSV; // per row
+	
+	G4double highPRegionBufferSize; // size of the water region around the detector edge
+		// where the precision (cut) is still high
+	G4double requiredWidth;
 	
 	//volumes to keep track of -- WRITE BETTER
 	G4VPhysicalVolume* physical_world;
 	G4LogicalVolume* logical_motherVolumeForDetector;
 	
 	// Methods called by Construct() depending on the chosen setup
-	void ConstructWithWaterPhantom(); // wip
-	void ConstructWithoutWaterPhantom(); // done?
+	void ConstructWithWaterPhantom();
+	void ConstructWithoutWaterPhantom(); // causes segfault when applying physics
 	
-	void ConstructDiamondDetector();	// SCRIVIMI
-	void ConstructMicroDiamondDetector(); // wip
-	void ConstructWPMicroDiamondDetector(); // stub, per Gabriele
-	void ConstructTelescopeDetector(); // stub, per Gabriele
-	void ConstructSiliconDetector();	// SCRIVIMI
+	void ConstructDiamondDetector();	// commented out
+	void ConstructMicroDiamondDetector();
+	void ConstructWPMicroDiamondDetector();	//review later -- highP region size to be changed accordingly -- move SV to middle of highP
+	void ConstructTelescopeDetector();	// to do: move SV to middle of highP
+	void ConstructSiliconDetector();	// commented out
 };
 #endif

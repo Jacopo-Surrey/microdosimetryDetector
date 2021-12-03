@@ -111,6 +111,17 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	useMultipleSVCmd -> SetParameterName("MultipleSV", false);
 	useMultipleSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
+	changeMultiSVSetupDir = new G4UIdirectory("/geometrySetup/multipleSVsetup");
+	changeMultiSVSetupDir -> SetGuidance("Choose how multiple SV are placed");
+	
+	changeMaximumBreadthForMultiSVCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/multipleSVsetup/setBreadth", this);
+	changeMaximumBreadthForMultiSVCmd -> SetGuidance("Set the maximum breadth transversal to the phantom along which multiple SV are placed");
+	changeMaximumBreadthForMultiSVCmd -> SetParameterName("Breadth", false);
+	changeMaximumBreadthForMultiSVCmd -> SetRange("Breadth >= 10 && Breadth <= 100000.");
+	changeMaximumBreadthForMultiSVCmd -> SetUnitCategory("Length");
+	changeMaximumBreadthForMultiSVCmd -> SetDefaultUnit("um");
+	changeMaximumBreadthForMultiSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
     applyChangesToGeometryCmd -> SetGuidance("Apply selected changes to the geometry");
 	applyChangesToGeometryCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -121,11 +132,12 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorType = "MicroDiamond";
 	detectorDepth = 10*mm;
 	detectorWidth = 100.*um;
+	detectorThickness = 8.*um;
 	secondStageDim = 500.*um;
 	secondStageThickness = 500.*um;
-	detectorThickness = 8.*um;
 	usingPhantom = true;	// FIX ME: currently the program crashes at various stages if this is set to false
 	multiSV = false;
+	multiSVbreadth = 5000*um;
 	
 	pendingChanges = false;
 }
@@ -140,6 +152,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeDetectorSizeThicknessCmd;
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
+	delete changeMaximumBreadthForMultiSVCmd;
 	
 	delete applyChangesToGeometryCmd;
 	
@@ -147,6 +160,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeDetectorDimensionDir;
 	delete changeTheGeometryDir;
 	delete changeDetectorSecondStageDir;
+	delete changeMultiSVSetupDir;
 }
 
 void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandContent)
@@ -253,6 +267,21 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeMaximumBreadthForMultiSVCmd )
+	{
+		multiSVbreadth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Breath along which SV are placed changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( multiSV == false )
+		{
+			G4cout << "WARNING: currently only a single SV is enabled" << G4endl;
+			G4cout << "Switch to multiple SV via /geometrySetup/useMultipleSV, otherwise the last command will be ignored" << G4endl;
+		}
 		
 		pendingChanges = true;
 	}

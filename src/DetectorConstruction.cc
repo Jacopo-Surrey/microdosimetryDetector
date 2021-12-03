@@ -68,9 +68,31 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	secondStageThickness = messenger -> GetSecondStageThickness();
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();
+	multiSVbreadth = messenger -> GetSpaceForMultiSV();
+	
+	SVspacing = std::max(200.*um, detectorSizeThickness);	//edge-to-edge space
+	highPRegionBufferSize = 1.*mm;
+	
+	if( multiSV == true )
+	{
+		G4double availableSpace = ( multiSVbreadth - detectorSizeWidth ) /2;
+			// space available in each half-size, minus the one SV in the middle
+		G4double spaceForEachSV = detectorSizeWidth + SVspacing;
+		G4int svThatFitThere = static_cast <int> ( std::floor( availableSpace / spaceForEachSV ) );
 		
-	if( multiSV == true )	nOfSV = 4;
-	else if( multiSV == false )	nOfSV = 1;
+		nOfSV = svThatFitThere*2 + 1;	// per row
+		G4cout << "Building detector with " << nOfSV << " SV per row" << G4endl;
+		
+		requiredWidth = nOfSV*detectorSizeWidth + (nOfSV-1)*SVspacing;
+			//actually useable size
+	}
+	
+	else if( multiSV == false )
+	{
+		nOfSV = 1;
+		
+		requiredWidth = detectorSizeWidth;
+	}
 }
 
 DetectorConstruction::~DetectorConstruction(){
@@ -98,7 +120,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	
 	else if( detectorType == "MicroDiamond" ) ConstructMicroDiamondDetector();
 
-	else if( detectorType == "WPMicroDiamond" ) ConstructWPMicroDiamondDetector(); // WaterProofMicroDiamond looks too long for me...we can find a better name than WPMicroDiamond anyway...
+	else if( detectorType == "WPMicroDiamond" ) ConstructWPMicroDiamondDetector();
+		// WaterProofMicroDiamond looks too long for me...we can find a better name than WPMicroDiamond anyway...
 	
 	else if( detectorType == "Telescope" ) ConstructTelescopeDetector();
 	
@@ -115,7 +138,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	return physical_world;
 }
 
-void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according to comments    &      check that Region is working       is the size big enough for every detector type??????
+void DetectorConstruction::ConstructWithWaterPhantom()
 {
 	//Define Vacuum
 	G4double A = 1.01*g/mole;
@@ -125,31 +148,13 @@ void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according
 	G4double temperature = 2.73*kelvin;
 	G4Material* vacuum = new G4Material("Galactic", Z, A,
 			         vacuumDensity,kStateGas,temperature,pressure);
-	
-	/*
-	//Define Hydrogen 
-	A = 1.01 * g/mole;
-	Z = 1;
-	G4Element* elH = new G4Element ("Hydrogen", "H", Z, A);
-	
-	//Define Oxygen
-	A = 16.0 * g/mole;
-	Z = 8;
-	G4Element* elO = new G4Element ("Oxygen", "O", Z, A);
-
-	//define water
-	G4Material* water = new G4Material("water", 1*g/cm3, 2);
-	water -> AddElement(elH, 2);
-	water -> AddElement(elO, 1);
-	*/
 
 	G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 	
 	//Define volumes
-	// World volume  has size 1cm
-	G4double worldx = 0.5 * m;
-	G4double worldy = 0.5 * m;
-	G4double worldz = 0.5 * m;
+	G4double worldx = 1.*m /2.;
+	G4double worldy = 1.*m /2.;
+	G4double worldz = 1.*m /2.;
 
 	// World volume, containing all geometry
 	G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
@@ -170,7 +175,7 @@ void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according
 	//water phantom
 	G4double phantom_x = 300.*mm /2.;
 	G4double phantom_y = 300.*mm /2.;
-	G4double phantom_z = (detectorPositionDepth + 20.*mm) /2.;	// maximum in DetectorMessenger.cc
+	G4double phantom_z = (detectorPositionDepth + 20.*mm) /2.;
 	
 	G4Box* phantom_box = new G4Box("phantom_box", phantom_x, phantom_y, phantom_z);
 	
@@ -184,19 +189,21 @@ void DetectorConstruction::ConstructWithWaterPhantom()	// make changes according
 	
 	logical_phantom -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0.2, 0.6)));
 	
-	//smaller volume where I can lower the cuts with G4Region
-	G4double highPVol_x = 11.*mm /2.; 	// SET DEPENDING ON SIZE OF DETECTOR
-	G4double highPVol_y = 11.*mm /2.;
-	G4double highPVol_z = 6.*mm /2.;
+	//smaller volume where I can lower the cuts with G4Region -- hence "high precision"
+	G4double highPVol_x = (requiredWidth + highPRegionBufferSize) /2.;
+	G4double highPVol_y = (requiredWidth + highPRegionBufferSize) /2.;
+	G4double highPVol_z = detectorSizeThickness/2. + highPRegionBufferSize;
 
 	// Ensure when using WaterProof Microdos the HighP region is bigger than the Epoxy case region
 	if( detectorType == "WPMicroDiamond" )
 	{
 		// SET DEPENDING ON SIZE OF EPOXY CASE when implemented the dependance
-		// for now set to 8mm (fixed epoxy dimensions) + 1mm
-		highPVol_x = 9.*mm/2.;
-		highPVol_y = 9.*mm/2.;
-		highPVol_z = 10.*mm/2.; //the thickness should be according to the epoxy case as well, for now I just set it to an arbitrary big value
+		// for now set to 8mm (fixed epoxy dimensions)
+		G4double epoxy = 8.*mm/2.;
+		
+		highPVol_x += epoxy;
+		highPVol_y += epoxy;
+		highPVol_z += epoxy;
 	}
 
 	G4Box* highPVol_box = new G4Box("highPVol_box", highPVol_x, highPVol_y, highPVol_z);
@@ -564,7 +571,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	// sentive volume
 	G4double SVside = detectorSizeWidth /2.;
 	G4double SVthickness = detectorSizeThickness /2.;
-	G4double SVspacing = 200.*um; //edge-edge distance
+	//G4double SVspacing = 200.*um; //edge-edge distance
 	
 	G4Box* SV_box = new G4Box("SV_box", SVside, SVside, SVthickness);
 
@@ -598,63 +605,110 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	logical_pD -> SetVisAttributes(pDcolour);
 
 	// put them in place
-	G4ThreeVector SVposition = {0., 0., SVthickness};	//position of the first edge (left)
-	G4ThreeVector fePosition = {0., 0., -feThickness};
-	G4ThreeVector pDposition = {0., 0., 2.*SVthickness + pDthickness};
+	/* // SV starts in 0
+	G4double SVposition_z = SVthickness;
+	G4double fePosition_z = -feThickness;
+	G4double pDposition_z = 2.*SVthickness + pDthickness;
+	*/
+	// SV centered in 0
+	G4double SVposition_z = 0;
+	G4double fePosition_z = -SVthickness -feThickness;
+	G4double pDposition_z = SVthickness + pDthickness;
 	
-	// if there are multiple sensitive volumes, each needs its own x-coordinate
-	G4double* SVposition_x = new G4double[ nOfSV ];
+	G4ThreeVector SVposition;
+	G4ThreeVector fePosition;
+	G4ThreeVector pDposition;
 	
-	if( nOfSV == 4 )
+	if( nOfSV == 1 )
 	{
-		//SVposition_x[0] = { -3.*SVside -1.5*SVspacing, -SVside -0.5*SVspacing, +SVside +0.5*SVspacing, +3.*SVside +1.5*SVspacing };
-		SVposition_x[0] = -3.*SVside -1.5*SVspacing;
-		SVposition_x[1] = -SVside -0.5*SVspacing;
-		SVposition_x[2] = +SVside +0.5*SVspacing;
-		SVposition_x[3] = +3.*SVside +1.5*SVspacing;
-	}
-	
-	else if( nOfSV == 1 )	SVposition_x[0] = 0.;
-
-	std::ostringstream PVName;
-
-	for( int i=0; i<nOfSV; i++)
-	{	
+		G4String PVName;
+		
+		SVposition = {0., 0., SVposition_z};
+		fePosition = {0., 0., fePosition_z};
+		pDposition = {0., 0., pDposition_z};
+		
 		// sensitive volume
-		SVposition[0] = SVposition_x[i];
-		PVName << "SV_phys_" << (i+1) ;
-		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
+		PVName = "SV_phys";
+		new G4PVPlacement(0, SVposition, logical_SV, PVName,
 					logical_motherVolumeForDetector,
 					false, 0, true);
-		PVName.str("");	//reset the string
 		
 		// chromium front-electrode
-		PVName << "frontElec_phys_" << (i+1);
-		fePosition[0] = SVposition[0];
-		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
+		PVName = "frontElec_phys";
+		new G4PVPlacement(0, fePosition, logical_fe, PVName,
 					logical_motherVolumeForDetector,
 					false, 0, true);
-		PVName.str("");
 		
 		// p-type diamond back-electrode
-		PVName << "pD_phys_" << (i+1);
-		pDposition[0] = SVposition[0];
-		new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
+		PVName = "pD_phys";
+		new G4PVPlacement(0, pDposition, logical_pD, PVName,
 					logical_motherVolumeForDetector,
 					false, 0, true);
-		PVName.str("");		
+	}
+	
+	else if( nOfSV > 1 )
+	{
+		std::ostringstream PVName;
+		
+		G4int volNo;		
+		G4double SVposition_x, SVposition_y;
+		
+		G4double start_xy = -requiredWidth/2. + SVside;
+			// initial position (volume's centre) of every row and column
+		
+		SVposition_y = start_xy;
+		
+		for( int i=0; i<nOfSV; i++)
+		{
+			SVposition_x = start_xy;
+			
+			for( int j=0; j<nOfSV; j++)
+			{
+				volNo = i*nOfSV +j +1;
+				
+				// sensitive volume
+				PVName << "SV_phys_" << volNo ;
+				SVposition = {SVposition_x, SVposition_y, SVposition_z};
+				new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
+							logical_motherVolumeForDetector,
+							false, 0, true);
+				PVName.str("");	//reset the string
+				
+				// chromium front-electrode
+				PVName << "frontElec_phys_" << volNo;
+				fePosition = {SVposition_x, SVposition_y, fePosition_z};
+				new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
+							logical_motherVolumeForDetector,
+							false, 0, true);
+				PVName.str("");
+				
+				// p-type diamond back-electrode
+				PVName << "pD_phys_" << volNo;
+				pDposition = {SVposition_x, SVposition_y, pDposition_z};
+				new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
+							logical_motherVolumeForDetector,
+							false, 0, true);
+				PVName.str("");
+				
+				// next position
+				SVposition_x = SVposition_x + SVside*2. + SVspacing;
+			}
+			
+			// next position
+			SVposition_y = SVposition_y + SVside*2. + SVspacing;
+		}
 	}
 
-	// HPHT diamond substrate (only one big substrate for simplicity)	// CAMBIA LE MIE DIMENSIONI IN BASE AI SV !!!!
-	G4double subs_x = 2.*mm /2.;
-	G4double subs_y = 0.5*mm /2.; 
+	// HPHT diamond substrate (only one big substrate for simplicity)
+	G4double subs_x = (requiredWidth + 300.*um) /2.;
+	G4double subs_y = (requiredWidth + 300.*um) /2.; 
 	G4double sub_z = 300.*micrometer /2.; 
 	
 	G4Box* sub_box = new G4Box("sub_box", subs_x, subs_y, sub_z);
 	
 	G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
 	
-	G4ThreeVector subPosition = {0,0, 2.*SVthickness + 2.*pDthickness +sub_z};
+	G4ThreeVector subPosition = {0,0, SVthickness + 2.*pDthickness +sub_z};
 	
 	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
 				logical_motherVolumeForDetector,
@@ -663,8 +717,6 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
 	subColour.SetForceSolid(false);
 	logical_sub -> SetVisAttributes(subColour);
-	
-	delete SVposition_x;
 }
 
 
@@ -737,7 +789,9 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	// sentive volume
 	G4double SVradius = detectorSizeWidth /2.; // ?? Should we leave Width also if it is a diameter?
 	G4double SVthickness = detectorSizeThickness /2.;
-	G4double SVspacing = 200.*um; //edge-edge distance
+	//G4double SVspacing = 200.*um; //edge-edge distance
+		// CHANGE MEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	G4CSGSolid* SV_cyl = new G4Tubs("SV_cyl", 0.*mm, SVradius, SVthickness, 0*deg, 360*deg);
 

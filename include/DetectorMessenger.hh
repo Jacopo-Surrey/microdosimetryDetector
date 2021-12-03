@@ -61,12 +61,14 @@ public:
   G4double GetSecondStageThickness() { return secondStageThickness; }
   G4bool GetUsingPhantomBool() { return usingPhantom; }
   G4bool GetMultiSVBool() { return multiSV; }
+  G4double GetSpaceForMultiSV() { return multiSVbreadth; }
   
 private:
   G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control
   G4UIdirectory *changeDetectorPositionDir;		//subdirectory
   G4UIdirectory *changeDetectorDimensionDir;	//subdirectory
   G4UIdirectory *changeDetectorSecondStageDir;		//sub-sub
+  G4UIdirectory *changeMultiSVSetupDir;	//subdirectory
   
   G4UIcmdWithAString *changeTheDetectorCmd; ///> Select the detector type
   G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	
@@ -76,6 +78,7 @@ private:
   G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
   G4UIcmdWithABool *enableWaterPhantomCmd;
   G4UIcmdWithABool *useMultipleSVCmd;
+  G4UIcmdWithADoubleAndUnit *changeMaximumBreadthForMultiSVCmd;
   
   G4UIcmdWithoutParameter *applyChangesToGeometryCmd;	// applies changes to detector position and/or size
   
@@ -90,6 +93,7 @@ private:
   G4double detectorThickness;
   G4bool usingPhantom;
   G4bool multiSV;
+  G4double multiSVbreadth;
   
   G4bool pendingChanges;
   
