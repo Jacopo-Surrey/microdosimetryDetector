@@ -63,8 +63,8 @@ beta = 0.05 # Gy**-2
 rho = 1. # g/cm**3
 r_d = 0.42 # um
 
-keV_to_Gy=1.602E-16; um_to_cm=1.E-4; g_to_kg=1.E-3
-rho*=g_to_kg; r_d*=um_to_cm; y_star*=(keV_to_Gy/um_to_cm)
+keV_to_J=1.602E-16; um_to_cm=1.E-4; g_to_kg=1.E-3
+rho*=g_to_kg; r_d*=um_to_cm; y_star*=(keV_to_J/um_to_cm)
 
 alpha = alpha_0 + beta/(rho*pi*r_d**2) * y_star
 

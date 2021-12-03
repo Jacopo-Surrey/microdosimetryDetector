@@ -69,34 +69,37 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeWidthCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setWidth", this);
 	changeDetectorSizeWidthCmd -> SetGuidance("Set the width of the detector (DE stage in case of telescope detector)");
 	changeDetectorSizeWidthCmd -> SetParameterName("Width", false);
-	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 1000.");	// DOES IT MAKE SENSE???
+	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 1000.");
 	changeDetectorSizeWidthCmd -> SetUnitCategory("Length");
 	changeDetectorSizeWidthCmd -> SetDefaultUnit("um");
 	changeDetectorSizeWidthCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
-
-	changeSecondStageSizeDimCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setSecondStageDim", this);
-	changeSecondStageSizeDimCmd -> SetGuidance("Set the dimension (diameter) of the second-stage (telescope detector only)");
-	changeSecondStageSizeDimCmd -> SetParameterName("Diameter", true);
-	changeSecondStageSizeDimCmd -> SetRange("Diameter >= 0.1 && Diameter <= 1000.");	// DOES IT MAKE SENSE???
-	changeSecondStageSizeDimCmd -> SetUnitCategory("Length");
-	changeSecondStageSizeDimCmd -> SetDefaultUnit("um");
-	changeSecondStageSizeDimCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
-
-	changeSecondStageThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setSecondStageThickness", this);
-	changeSecondStageThicknessCmd -> SetGuidance("Set the thickness of the second-stage (telescope detector only)");
-	changeSecondStageThicknessCmd -> SetParameterName("Thickness", true);
-	changeSecondStageThicknessCmd -> SetRange("Thickness >= 10. && Thickness <= 1000.");	// DOES IT MAKE SENSE???
-	changeSecondStageThicknessCmd -> SetUnitCategory("Length");
-	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
-	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
 	changeDetectorSizeThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setThickness", this);
 	changeDetectorSizeThicknessCmd -> SetGuidance("Set the thickness of the detector");
 	changeDetectorSizeThicknessCmd -> SetParameterName("Thickness", false);
-	changeDetectorSizeThicknessCmd -> SetRange("Thickness >= 0.1 && Thickness <= 1000.");	// DOES IT MAKE SENSE???
+	changeDetectorSizeThicknessCmd -> SetRange("Thickness >= 0.1 && Thickness <= 1000.");
 	changeDetectorSizeThicknessCmd -> SetUnitCategory("Length");
 	changeDetectorSizeThicknessCmd -> SetDefaultUnit("um");
 	changeDetectorSizeThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	
+	changeDetectorSecondStageDir = new G4UIdirectory("/geometrySetup/detectorDimension/secondStage");
+	changeDetectorSecondStageDir -> SetGuidance("Modify the dimensions of the second stage (telescope only)");
+	
+	changeSecondStageSizeDimCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/secondStage/setWidth", this);
+	changeSecondStageSizeDimCmd -> SetGuidance("Set the dimension (diameter) of the second-stage (telescope detector only)");
+	changeSecondStageSizeDimCmd -> SetParameterName("Diameter", false);
+	changeSecondStageSizeDimCmd -> SetRange("Diameter >= 0.1 && Diameter <= 1000.");
+	changeSecondStageSizeDimCmd -> SetUnitCategory("Length");
+	changeSecondStageSizeDimCmd -> SetDefaultUnit("um");
+	changeSecondStageSizeDimCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+
+	changeSecondStageThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/secondStage/setThickness", this);
+	changeSecondStageThicknessCmd -> SetGuidance("Set the thickness of the second-stage (telescope detector only)");
+	changeSecondStageThicknessCmd -> SetParameterName("Thickness", false);
+	changeSecondStageThicknessCmd -> SetRange("Thickness >= 10. && Thickness <= 1000.");
+	changeSecondStageThicknessCmd -> SetUnitCategory("Length");
+	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
+	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
 	enableWaterPhantomCmd = new G4UIcmdWithABool("/geometrySetup/enableWaterPhantom", this);
 	enableWaterPhantomCmd -> SetGuidance("If true, the detector is placed inside a water phantom");
@@ -105,7 +108,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	
 	useMultipleSVCmd = new G4UIcmdWithABool("/geometrySetup/useMultipleSV", this);
 	useMultipleSVCmd -> SetGuidance("Set to true for multiple SV, false for a single one");
-	useMultipleSVCmd -> SetParameterName("MultipleSV", true);
+	useMultipleSVCmd -> SetParameterName("MultipleSV", false);
 	useMultipleSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
@@ -141,6 +144,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeDetectorPositionDir;
 	delete changeDetectorDimensionDir;
 	delete changeTheGeometryDir;
+	delete changeDetectorSecondStageDir;
 }
 
 void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandContent)
@@ -192,6 +196,11 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Second-stage (telescope detector) diameter changed to " << commandContent << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( detectorType != "Telescope" )
+		{
+			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
+			G4cout << "Unless this is changed to Telescope, the last command will be ignored" << G4endl;
+		}
 	}
 
 	else if( command == changeSecondStageThicknessCmd )
@@ -200,6 +209,11 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Second-stage (telescope detector) thickness changed to " << commandContent << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( detectorType != "Telescope" )
+		{
+			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
+			G4cout << "Unless this is changed to Telescope, the last command will be ignored" << G4endl;
+		}
 	}
 	
 	else if( command == changeDetectorSizeThicknessCmd )

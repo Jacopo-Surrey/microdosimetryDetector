@@ -66,6 +66,7 @@ private:
   G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control
   G4UIdirectory *changeDetectorPositionDir;		//subdirectory
   G4UIdirectory *changeDetectorDimensionDir;	//subdirectory
+  G4UIdirectory *changeDetectorSecondStageDir;		//sub-sub
   
   G4UIcmdWithAString *changeTheDetectorCmd; ///> Select the detector type
   G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	

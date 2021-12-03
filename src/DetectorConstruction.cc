@@ -947,7 +947,7 @@ void DetectorConstruction::ConstructTelescopeDetector()
 	G4CSGSolid* SV_E_cyl = new G4Tubs("SV_E_cyl", 0.*mm, SV_E_radius, SV_E_thickness, 0*deg, 360*deg);
 	G4LogicalVolume* logical_SV_Estage = new G4LogicalVolume(SV_E_cyl, diamond, "SV_Estage_log", 0,0,0);
 	
-	G4VisAttributes SV_E_colour(G4Colour(0.5, 0.5, 0.5));
+	G4VisAttributes SV_E_colour(G4Colour(0.7, 0.7, 0.7));
 	SV_E_colour.SetForceSolid(true);
 	logical_SV_Estage -> SetVisAttributes(SV_E_colour);
 

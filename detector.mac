@@ -2,12 +2,13 @@
 
 /geometrySetup/enableWaterPhantom true
 
-# setWidth corresponds to the DE-stage diameter in case of Telescope detector
+# detector dimensions (or DE stage of the Telescope)
 /geometrySetup/detectorDimension/setWidth 100 um
 /geometrySetup/detectorDimension/setThickness 8 um
-# setSecondStageDim and setSecondStageThickness affect the geometry only if the Telescope detector is used
-/geometrySetup/detectorDimension/setSecondStageDim 500 um
-/geometrySetup/detectorDimension/setSecondStageThickness 500 um
+
+# the following only affect the Telescope detector
+#/geometrySetup/detectorDimension/secondStage/setWidth 500 um
+#/geometrySetup/detectorDimension/secondStage/setThickness 500 um
 
 /geometrySetup/useMultipleSV false
 
