@@ -126,6 +126,8 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorThickness = 8.*um;
 	usingPhantom = true;	// FIX ME: currently the program crashes at various stages if this is set to false
 	multiSV = false;
+	
+	pendingChanges = false;
 }
 
 DetectorMessenger::~DetectorMessenger()
@@ -159,12 +161,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 			G4cout << "Detector type changed to " << commandContent << G4endl;
 			G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 			
-			/*
-			DetectorConstruction* newDetector = new DetectorConstruction(analysis, commandContent);	//PUT THESE LINES IN NEW COMMAND
-			G4RunManager *runManager = G4RunManager::GetRunManager();
-			runManager -> SetUserInitialization(newDetector);
-			runManager -> GeometryHasBeenModified();
-			*/
+			pendingChanges = true;
 		}
 		
 		else
@@ -180,6 +177,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		G4cout << "Detector depth in water changed to " << commandContent << G4endl;
 		if( usingPhantom == false )	G4cout << "However the water phantom is not enabled. Enable it with '/geometrySetup/enableWaterPhantom true' or this value will be ignored" << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
 	}
 	
 	else if( command == changeDetectorSizeWidthCmd )
@@ -188,6 +187,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Detector width changed to " << commandContent << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
 	}
 
 	else if( command == changeSecondStageSizeDimCmd )
@@ -201,6 +202,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
 			G4cout << "Unless this is changed to Telescope, the last command will be ignored" << G4endl;
 		}
+		
+		pendingChanges = true;
 	}
 
 	else if( command == changeSecondStageThicknessCmd )
@@ -214,6 +217,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
 			G4cout << "Unless this is changed to Telescope, the last command will be ignored" << G4endl;
 		}
+		
+		pendingChanges = true;
 	}
 	
 	else if( command == changeDetectorSizeThicknessCmd )
@@ -222,6 +227,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Detector thickness changed to " << commandContent << G4endl;
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
 	}
 	
 	else if( command == enableWaterPhantomCmd )
@@ -233,6 +240,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
 	}
 	
 	else if( command == useMultipleSVCmd )
@@ -244,22 +253,34 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
 		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
 	}
 	
 	else if( command == applyChangesToGeometryCmd )
 	{
 		G4RunManager* runManager = G4RunManager::GetRunManager();
 		
-		// if geometryHasChanged == true
-		DetectorConstruction* newDetector = new DetectorConstruction(analysis, this);
-		runManager -> SetUserInitialization(newDetector);
-		runManager -> GeometryHasBeenModified();
+		if( pendingChanges == true )
+		{
+			// if geometryHasChanged ?
+			DetectorConstruction* newDetector = new DetectorConstruction(analysis, this);
+			runManager -> SetUserInitialization(newDetector);
+			runManager -> GeometryHasBeenModified();
+			
+			// (nested?) if regionsHaveChanged ?
+			G4VUserPhysicsList* newPhysics = new PhysicsList(this);
+			runManager -> SetUserInitialization(newPhysics);
+			runManager -> PhysicsHasBeenModified();
+			
+			G4cout << "Changes to geometry have been applied" << G4endl;
+			
+			pendingChanges = false;
+		}
 		
-		// (nested?) if regionsHaveChanged == true
-		G4VUserPhysicsList* newPhysics = new PhysicsList(this);
-		runManager -> SetUserInitialization(newPhysics);
-		runManager -> PhysicsHasBeenModified();
-		
-		G4cout << "Changes to geometry have been applied" << G4endl;		
+		else if( pendingChanges == false )
+		{
+			G4cout << "No pending changes. The last command has been ignored" << G4endl;
+		}
 	}
 }

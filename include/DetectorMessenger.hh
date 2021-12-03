@@ -91,6 +91,8 @@ private:
   G4bool usingPhantom;
   G4bool multiSV;
   
+  G4bool pendingChanges;
+  
   AnalysisManager* analysis;
 };
 #endif
