@@ -185,7 +185,7 @@ void DetectorConstruction::ConstructWithWaterPhantom()
 	
 	 new G4PVPlacement(0, phantom_position, logical_phantom,"phantom_phys",
 				logical_world, 
-				false, 0, true);
+				false, 0, checkOverlap);
 	
 	logical_phantom -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0.2, 0.6)));
 	
@@ -218,7 +218,7 @@ void DetectorConstruction::ConstructWithWaterPhantom()
  
 	new G4PVPlacement(0, highP_position, logical_highPVol,"highPVol_phys",
 				logical_phantom, 
-				false, 0, true);
+				false, 0, checkOverlap);
  
 	logical_highPVol -> SetVisAttributes(G4VisAttributes(G4Colour(0., 0., 1.)));
 	
@@ -373,7 +373,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 
 	new G4PVPlacement(0, G4ThreeVector(0,0,0), logical_DiaVol,"DiaVol_phys",
 				logical_world, 
-				false, 0, true);
+				false, 0, checkOverlap);
 
 	//VacBlock for contact placement
 	G4double vacblock_x = 300*um;
@@ -390,7 +390,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 				"vacblock_phys",
 				logical_DiaVol, 
 				false, 
-				0, true);
+				0, checkOverlap);
 	//Bdl in DiaVol
 	G4double Bdl_x = 300*micrometer;
 	G4double Bdl_y = 240*micrometer;
@@ -406,7 +406,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 			"Bdl_phys",
 				logical_DiaVol,   //mother volume 
 					false, 
-			0, true);
+			0, checkOverlap);
 
 	//Diamond SV
 	G4double SV_x = 75*um;
@@ -418,16 +418,16 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 	G4LogicalVolume* logical_SV = new G4LogicalVolume(SV_box, diamond, "SV_log", 0,0,0);
 
 	new G4PVPlacement(0, G4ThreeVector(-45*um,105*um,0*um), logical_SV,"SV_phys1",
-				logical_Bdl,false, 0, true);
+				logical_Bdl,false, 0, checkOverlap);
 
 	new G4PVPlacement(0, G4ThreeVector(165*um,105*um,0*um), logical_SV,"SV_phys2",
-			logical_Bdl, false, 0, true);
+			logical_Bdl, false, 0, checkOverlap);
 
 	new G4PVPlacement(0, G4ThreeVector(-45*um,-105*um,0*um),logical_SV,"SV_phys3", 
-			logical_Bdl, false, 0, true);
+			logical_Bdl, false, 0, checkOverlap);
 
 	new G4PVPlacement(0, G4ThreeVector(165*um,-105*um,0*um),logical_SV,"SV_phys4",
-			logical_Bdl, false, 0, true);
+			logical_Bdl, false, 0, checkOverlap);
 
 	//Al strips
 	//10 nm thickness 
@@ -440,7 +440,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 	G4LogicalVolume* logical_AlStrip = new G4LogicalVolume(AlStrip, AlContact, "AlStrip_log", 0,0,0);
 
 	new G4PVPlacement(0, G4ThreeVector(60*um,0,0), logical_AlStrip, "AlStrip_phys",
-					logical_vacblock, false, 0, true);
+					logical_vacblock, false, 0, checkOverlap);
 
 	//gold cylinder in vacblock
 	G4double innerRadiusOfTheTube1 = 0.*um;
@@ -460,7 +460,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 	new G4PVPlacement(0,G4ThreeVector(-245*um,0,-vacblock_z + heightOfTheTube1),
 						logical_GoldCylinder1,
 					"GoldCylinder1_phys",
-					logical_vacblock, false, 0, true);
+					logical_vacblock, false, 0, checkOverlap);
 
 	//gold contacts
 	G4double innerRadiusOfTheTube2 = 0.*um;
@@ -479,7 +479,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 	G4LogicalVolume* logical_GoldCylinder2 = new G4LogicalVolume(GoldCylinder2, AuContact, "GoldCylinder2_log", 0,0,0);
 
 	new G4PVPlacement(0, G4ThreeVector(-245*um,0,0), logical_GoldCylinder2, "GoldCylinder2_phys",
-			logical_Bdl, false, 0, true);
+			logical_Bdl, false, 0, checkOverlap);
 
 	//gold cylinder in DiaVol
 	G4double innerRadiusOfTheTube3 = 0.*um;
@@ -502,7 +502,7 @@ void DetectorConstruction::ConstructDiamondDetector() // change return value  --
 					"GoldCylinder3_phys",
 					logical_DiaVol, 
 					false, 
-					0, true);
+					0, checkOverlap);
 
 // Visualisation attributes
 
@@ -631,19 +631,19 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 		PVName = "SV_phys";
 		new G4PVPlacement(0, SVposition, logical_SV, PVName,
 					logical_motherVolumeForDetector,
-					false, 0, true);
+					false, 0, checkOverlap);
 		
 		// chromium front-electrode
 		PVName = "frontElec_phys";
 		new G4PVPlacement(0, fePosition, logical_fe, PVName,
 					logical_motherVolumeForDetector,
-					false, 0, true);
+					false, 0, checkOverlap);
 		
 		// p-type diamond back-electrode
 		PVName = "pD_phys";
 		new G4PVPlacement(0, pDposition, logical_pD, PVName,
 					logical_motherVolumeForDetector,
-					false, 0, true);
+					false, 0, checkOverlap);
 	}
 	
 	else if( nOfSV > 1 )
@@ -671,7 +671,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 				SVposition = {SVposition_x, SVposition_y, SVposition_z};
 				new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
 							logical_motherVolumeForDetector,
-							false, 0, true);
+							false, 0, checkOverlap);
 				PVName.str("");	//reset the string
 				
 				// chromium front-electrode
@@ -679,7 +679,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 				fePosition = {SVposition_x, SVposition_y, fePosition_z};
 				new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
 							logical_motherVolumeForDetector,
-							false, 0, true);
+							false, 0, checkOverlap);
 				PVName.str("");
 				
 				// p-type diamond back-electrode
@@ -687,7 +687,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 				pDposition = {SVposition_x, SVposition_y, pDposition_z};
 				new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
 							logical_motherVolumeForDetector,
-							false, 0, true);
+							false, 0, checkOverlap);
 				PVName.str("");
 				
 				// next position
@@ -712,7 +712,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	
 	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
 				logical_motherVolumeForDetector,
-				false, 0, true);
+				false, 0, checkOverlap);
 
 	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
 	subColour.SetForceSolid(false);
@@ -790,8 +790,6 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	G4double SVradius = detectorSizeWidth /2.; // ?? Should we leave Width also if it is a diameter?
 	G4double SVthickness = detectorSizeThickness /2.;
 	//G4double SVspacing = 200.*um; //edge-edge distance
-		// CHANGE MEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	G4CSGSolid* SV_cyl = new G4Tubs("SV_cyl", 0.*mm, SVradius, SVthickness, 0*deg, 360*deg);
 
@@ -858,7 +856,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	G4ThreeVector pDposition = {0., 0., -wpCase_thickness + deadLayer + 2.*SVthickness + pDthickness};
 	
 	// ?? not sure about how to set the nOfSV = 1, probably it has to be fixed at an earlier stage...I've currently arranged it like this:
-	if( nOfSV == 4 )
+	if( nOfSV > 1 )
 	{
 		G4cout << "WARNING: " << detectorType << " has not multiple Sensitive Volumes; a single Sensitive Volume is used instead.";
 		nOfSV = 1;
@@ -874,14 +872,14 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 		PVName << "wpCase_phys";
 		new G4PVPlacement(0, wpCasePosition, logical_wpCase, PVName.str(),
 					logical_motherVolumeForDetector,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");	//reset the string
 		// sensitive volume
 		SVposition[0] = SVposition_x[i];
 		PVName << "SV_phys_" << (i+1) ;
 		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
 					logical_wpCase,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");	//reset the string
 		
 		// chromium front-electrode
@@ -889,7 +887,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 		fePosition[0] = SVposition[0];
 		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
 					logical_wpCase,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");
 		
 		// p-type diamond back-electrode
@@ -897,7 +895,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 		pDposition[0] = SVposition[0];
 		new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
 					logical_wpCase,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");		
 	}
 
@@ -911,7 +909,7 @@ void DetectorConstruction::ConstructWPMicroDiamondDetector()
 	
 	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
 				logical_wpCase,
-				false, 0, true);
+				false, 0, checkOverlap);
 
 	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
 	subColour.SetForceSolid(false);
@@ -1046,7 +1044,7 @@ void DetectorConstruction::ConstructTelescopeDetector()
 	G4ThreeVector SV_E_position = {0., 0., 2.*SV_DE_thickness + 2.*pDthickness + SV_E_thickness};
 	
 	// ?? not sure about how to set the nOfSV = 1, probably it has to be fixed at an earlier stage...I've currently arranged it like this:
-	if( nOfSV == 4 )
+	if( nOfSV > 1 )
 	{
 		G4cout << "WARNING: " << detectorType << " has not multiple Sensitive Volumes; a single Sensitive Volume is used instead.";
 		nOfSV = 1;
@@ -1058,7 +1056,7 @@ void DetectorConstruction::ConstructTelescopeDetector()
 	// DE crystal
 	new G4PVPlacement(0, DE_cryst_position, logical_DE_cryst, "DEstageCrystal_phys",
 				logical_motherVolumeForDetector,
-				false, 0, true);
+				false, 0, checkOverlap);
 	// I would keep this structure of the SV placement script so that if we ever need to build a multi-SV telescope it will be easier.
 	std::ostringstream PVName;
 	for( int i=0; i<nOfSV; i++)
@@ -1068,7 +1066,7 @@ void DetectorConstruction::ConstructTelescopeDetector()
 		PVName << "SV_phys_" << (i+1) ;
 		new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
 					logical_DE_cryst,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");	//reset the string
 		
 		// chromium front-electrode
@@ -1076,19 +1074,19 @@ void DetectorConstruction::ConstructTelescopeDetector()
 		fePosition[0] = SVposition[0];
 		new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
 					logical_motherVolumeForDetector,
-					false, 0, true);
+					false, 0, checkOverlap);
 		PVName.str("");	
 	}
 		
 	// p-type diamond back-electrode (NB The p-type diamond layer extends over the whole intrinsic-dimaond crystal
 	new G4PVPlacement(0, pDposition, logical_pD, "pD_phys",
 				logical_motherVolumeForDetector,
-				false, 0, true);
+				false, 0, checkOverlap);
 		
 	// E-stage
 	new G4PVPlacement(0, SV_E_position, logical_SV_Estage, "SV_Estage_phys",
 				logical_motherVolumeForDetector,
-				false, 0, true);
+				false, 0, checkOverlap);
 
 	// back electrode
 	
@@ -1096,7 +1094,7 @@ void DetectorConstruction::ConstructTelescopeDetector()
 	
 	new G4PVPlacement(0, backElectrodePosition, logical_fe_back, "backElec_phys",
 				logical_motherVolumeForDetector,
-				false, 0, true);
+				false, 0, checkOverlap);
 	
 	delete SVposition_x;
 }
@@ -1187,7 +1185,7 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 	
 	new G4PVPlacement(0, G4ThreeVector(), logical_PMMA, "PMMA_phys",
 					logical_world,
-					false, 0, true);
+					false, 0, checkOverlap);
 	
 	logical_PMMA -> SetVisAttributes(G4VisAttributes(G4Colour(0., 1., 0.)));
 	
@@ -1211,25 +1209,25 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 	SVposition = { +SVspacing/2. +SV_radius, +SVspacing/2. +SV_radius, 0. };
 	new G4PVPlacement(0, SVposition, logical_SV, "SV_phys1",
 						logical_PMMA,
-						false, 0, true);
+						false, 0, checkOverlap);
 	//new G4PVPlacement(cylRot, SVposition, logical_SV, "SV_phys1",
 	//				logical_PMMA,
-	//				false, 0, true);
+	//				false, 0, checkOverlap);
 
 	SVposition = { -SVspacing/2. -SV_radius, +SVspacing/2. +SV_radius, 0. };
 	new G4PVPlacement(0, SVposition, logical_SV, "SV_phys2",
 						logical_PMMA,
-						false, 0, true);
+						false, 0, checkOverlap);
 	
 	SVposition = { -SVspacing/2. -SV_radius, -SVspacing/2. -SV_radius, 0. };
 	new G4PVPlacement(0, SVposition, logical_SV, "SV_phys3",
 						logical_PMMA,
-						false, 0, true);
+						false, 0, checkOverlap);
 						
 	SVposition = { +SVspacing/2. +SV_radius, -SVspacing/2. -SV_radius, 0. };
 	new G4PVPlacement(0, SVposition, logical_SV, "SV_phys4",
 						logical_PMMA,
-						false, 0, true);
+						false, 0, checkOverlap);
 	
 	// Si02 layer
 	G4double oxyde_x = PMMA_x;
@@ -1243,7 +1241,7 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 	G4ThreeVector oxyde_position = G4ThreeVector( 0, 0, PMMA_z + oxyde_z );
 	new G4PVPlacement(0, oxyde_position, logical_oxyde, "oxyde_phys",
 					logical_world,
-					false, 0, true);
+					false, 0, checkOverlap);
 	
 	logical_oxyde -> SetVisAttributes(G4VisAttributes(G4Colour(0.6, 0.6, 0.6)));
 
