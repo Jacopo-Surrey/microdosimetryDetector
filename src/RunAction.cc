@@ -39,13 +39,15 @@ RunAction::RunAction(AnalysisManager* analysis)
 : G4UserRunAction(),
   iHits(0)
 { 
-  analysisMan = analysis;
+	analysisMan = analysis;
 
-  accumulableManager = G4AccumulableManager::Instance();	//see B1
-  accumulableManager -> RegisterAccumulable(iHits);
-  
-  // Minimum value for acceptable statistics
-  hitsRequired = 100000;
+	accumulableManager = G4AccumulableManager::Instance();	//see B1
+	accumulableManager -> RegisterAccumulable(iHits);
+	
+	// Minimum value for acceptable statistics -- default value
+	hitsRequired = 10000;
+	
+	messenger = new RunMessenger(this);
 }
 
 RunAction::~RunAction()

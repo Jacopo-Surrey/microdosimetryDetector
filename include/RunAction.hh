@@ -36,7 +36,11 @@
 #include "G4Accumulable.hh"
 #include <map>
 
+#include "RunMessenger.hh"
+
 class G4AccumulableManager;
+
+class RunMessenger;
 
 class RunAction : public G4UserRunAction
 {
@@ -55,17 +59,20 @@ public:
 	// Increments the total number of hits recorded by one,
 	// then check if they have reached hitsRequired, and
 	// if so stops the simulation.
+	
+	void setHitsRequired(G4int hits) { hitsRequired = hits; }
 
 private:
- // !!! Change the following depending on the desired statistics !!!
- G4int hitsRequired;
+	// !!! Change the following depending on the desired statistics !!!
+	G4int hitsRequired;
 
- G4AccumulableManager* accumulableManager;
- 
- AnalysisManager* analysisMan;
+	G4AccumulableManager* accumulableManager;
+	
+	AnalysisManager* analysisMan;
 
- G4Accumulable<G4int> iHits;
+	G4Accumulable<G4int> iHits;
 
+	RunMessenger* messenger;
 
 };
 #endif
