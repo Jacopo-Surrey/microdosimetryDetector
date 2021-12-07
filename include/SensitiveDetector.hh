@@ -63,6 +63,9 @@ class SensitiveDetector : public G4VSensitiveDetector
 	RunAction* runAction;
 	
 	G4String activeVolumeName;
+	G4bool volumeCheckRequired;
+	G4String activeVolumeInThisEvent;
+	
 	// private variable to get the kinetic energy lost by primaries
 	G4bool firstStep;
 	G4double Ek_in;

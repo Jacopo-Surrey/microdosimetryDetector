@@ -61,6 +61,19 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 	
 	activeVolumeName = sActiveVolumeName;
 	
+	if( activeVolumeName == "SV" || activeVolumeName == "Estage" )
+	{
+		volumeCheckRequired = false;
+	}
+	else if( activeVolumeName == "multiSV" ) 
+	{
+		volumeCheckRequired = true;
+	}
+	else
+	{
+		G4cout << "ERROR: SensitiveDetector got unexpected sActiveVolumeName" << G4endl;
+	}
+	
 	// initialize the private variables for primaries energy lost calculation
 	firstStep=true;
 	Ek_in=0.;
@@ -79,7 +92,11 @@ void SensitiveDetector::Initialize(G4HCofThisEvent* hce)
 	// Add this collection in hce
 	G4int hcID 
 		= G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-	hce->AddHitsCollection( hcID, fHitsCollection ); 
+	hce->AddHitsCollection( hcID, fHitsCollection );
+	
+	// reset the active volume (only really necessary with multiple SV)
+	//if( volumeCheckRequired == true )
+	activeVolumeInThisEvent = "blank";
 }
 
 
@@ -91,10 +108,26 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 
 	if (edep==0.) return false;
 
-	G4String volumeName = aStep -> GetPreStepPoint() -> GetPhysicalVolume()-> GetName();
+	G4String thisVolumeName = aStep -> GetPreStepPoint() -> GetPhysicalVolume()-> GetName();
 
-	//if(volumeName != activeVolumeName) 
-	//	return false;  
+	// if using a single SV or the E stage, no further check is required
+	if( volumeCheckRequired == true )
+	{
+		// ... otherwise, make sure you only register hits on a single SV per event
+		// (whichever is hit first will be the only one scored in each event)
+		// This is done to have SVs at a distance lower than the size of a single
+		// hadron's penumbra, without the same traversal in multiple detectors being
+		// added together
+		if( activeVolumeInThisEvent == "blank" )	// if it's the first step being scored
+		{
+			activeVolumeInThisEvent = thisVolumeName;
+		}
+		else if( activeVolumeInThisEvent != thisVolumeName )
+			// if it's not the first, and it's in a different SV
+		{
+			return false;
+		}
+	}
 
 	SensitiveDetectorHit* newHit = new SensitiveDetectorHit();
 
@@ -159,6 +192,10 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 		maxZinsideDetector = std::max( maxZinsideDetector , zz ); 
 	} 
 
+	G4String volumeNameToOutput;
+	
+	if( volumeCheckRequired == true )	volumeNameToOutput = activeVolumeInThisEvent;
+	else	volumeNameToOutput = activeVolumeName;
 
 	if (totalEdepInOneEvent!=0)
 	{
@@ -166,7 +203,7 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 											totalEdepInOneEvent,
 											totalPathLengthInOneEvent,
 											maxZinsideDetector,
-											activeVolumeName,
+											volumeNameToOutput,
 											eventID
 										);
 	

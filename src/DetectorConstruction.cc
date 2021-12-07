@@ -70,7 +70,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	multiSV = messenger -> GetMultiSVBool();
 	multiSVbreadth = messenger -> GetSpaceForMultiSV();
 	
-	SVspacing = std::max(200.*um, detectorSizeThickness);	//edge-to-edge space
+	//SVspacing = std::max(200.*um, detectorSizeThickness);
+	SVspacing = detectorSizeThickness*2.;	//edge-to-edge space
 	highPRegionBufferSize = 1.*mm;
 	
 	if( multiSV == true )
@@ -95,7 +96,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	}
 }
 
-DetectorConstruction::~DetectorConstruction(){
+DetectorConstruction::~DetectorConstruction()
+{
 
 }
 
@@ -1253,16 +1255,27 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 
 void DetectorConstruction::ConstructSDandField()
 {
-   SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", "SV_phys_1", analysis);
-   G4SDManager::GetSDMpointer()->AddNewDetector(SD);
-   SetSensitiveDetector("SV_log", SD);
+	G4String detectorName;
+	
+	if( multiSV == true )
+	{
+		detectorName = "multiSV";
+	}
+	else
+	{
+		detectorName = "SV";
+	}
+	
+	SensitiveDetector* SD = new SensitiveDetector("SD", "DetectorHitsCollection", detectorName, analysis);
+	G4SDManager::GetSDMpointer()->AddNewDetector(SD);
+	SetSensitiveDetector("SV_log", SD);
 
-   // second stage
-   if( detectorType == "Telescope" )
-   {
-      SensitiveDetector* SDs2 = new SensitiveDetector("SDs2", "DetectorStage2HitsCollection", "SV_Estage_phys", analysis);
-      G4SDManager::GetSDMpointer()->AddNewDetector(SDs2);
-      SetSensitiveDetector("SV_Estage_log", SDs2);
-   }
+	// second stage
+	if( detectorType == "Telescope" )
+	{
+		SensitiveDetector* SDs2 = new SensitiveDetector("SDs2", "DetectorStage2HitsCollection", "Estage", analysis);
+		G4SDManager::GetSDMpointer()->AddNewDetector(SDs2);
+		SetSensitiveDetector("SV_Estage_log", SDs2);
+	}
 
 }
