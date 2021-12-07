@@ -135,7 +135,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorThickness = 8.*um;
 	secondStageDim = 500.*um;
 	secondStageThickness = 500.*um;
-	usingPhantom = true;	// FIX ME: currently the program crashes at various stages if this is set to false
+	usingPhantom = false;	// used to crash the program if set to false under some conditions (why?)
 	multiSV = false;
 	multiSVbreadth = 5000*um;
 	
