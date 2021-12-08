@@ -11,4 +11,3 @@ Afterwards, relevant microdosimetric quantities and sample RBE estimates can be 
 ### Current issues:
 - multithreading with two-stage output has not been tested, and the eventID might not correspond properly
 - only MicroDiamond and Telescope are available, the other detectors are commented out (minimal changes are needed for them to work)
-- changing cuts via macro doesn't seem to have any effect (this is being looked into)
