@@ -32,14 +32,16 @@
 #include "SteppingAction.hh"
 #include "G4RunManager.hh"
 #include "AnalysisManager.hh"
+#include "DetectorMessenger.hh"
 #include "RunAction.hh"
 //#include "EventAction.hh"
 #include "G4GeneralParticleSource.hh"
 
-ActionInitialization::ActionInitialization(AnalysisManager* analysisMan):
+ActionInitialization::ActionInitialization(AnalysisManager* analysisMan, DetectorMessenger* detectorMess):
 G4VUserActionInitialization()
 {
- analysis = analysisMan;
+	analysis = analysisMan;
+	detector = detectorMess;
 }
 
 
@@ -63,7 +65,7 @@ void ActionInitialization::Build() const
 PrimaryGeneratorAction* primary = new PrimaryGeneratorAction(analysis);
 SetUserAction(primary); 
 
-RunAction* run = new RunAction(analysis);
+RunAction* run = new RunAction(analysis, detector);
 SetUserAction(run); 
 
 //EventAction* event = new EventAction(run);

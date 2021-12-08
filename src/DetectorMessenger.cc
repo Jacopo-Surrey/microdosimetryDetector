@@ -82,7 +82,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeThicknessCmd -> SetDefaultUnit("um");
 	changeDetectorSizeThicknessCmd -> AvailableForStates(G4State_PreInit);
 	
-	changeDetectorSecondStageDir = new G4UIdirectory("/geometrySetup/detectorDimension/secondStage");
+	changeDetectorSecondStageDir = new G4UIdirectory("/geometrySetup/detectorDimension/secondStage/");
 	changeDetectorSecondStageDir -> SetGuidance("Modify the dimensions of the second stage (telescope only)");
 	
 	changeSecondStageSizeDimCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/secondStage/setWidth", this);
@@ -111,7 +111,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	useMultipleSVCmd -> SetParameterName("MultipleSV", false);
 	useMultipleSVCmd -> AvailableForStates(G4State_PreInit);
 	
-	changeMultiSVSetupDir = new G4UIdirectory("/geometrySetup/multipleSVsetup");
+	changeMultiSVSetupDir = new G4UIdirectory("/geometrySetup/multipleSVsetup/");
 	changeMultiSVSetupDir -> SetGuidance("Choose how multiple SV are placed");
 	
 	changeMaximumBreadthForMultiSVCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/multipleSVsetup/setBreadth", this);
@@ -130,7 +130,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeSpacingBetweenSV -> SetDefaultUnit("um");
 	changeSpacingBetweenSV -> AvailableForStates(G4State_PreInit);
 	
-	setCutsDir = new G4UIdirectory("/cuts/custom");
+	setCutsDir = new G4UIdirectory("/cuts/custom/");
 	setCutsDir -> SetGuidance("Set cuts for this specific setup");
 	
 	changeCutForRegionCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsAroundSV", this);
@@ -208,7 +208,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 			detectorType = commandContent;
 			
 			G4cout << "Detector type changed to " << commandContent << G4endl;
-			G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+			//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 			
 			pendingChanges = true;
 		}
@@ -225,7 +225,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Detector depth in water changed to " << commandContent << G4endl;
 		if( usingPhantom == false )	G4cout << "However the water phantom is not enabled. Enable it with '/geometrySetup/enableWaterPhantom true' or this value will be ignored" << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -235,7 +235,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		detectorWidth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Detector width changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -245,7 +245,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		secondStageDim = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Second-stage (telescope detector) diameter changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( detectorType != "Telescope" )
 		{
 			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
@@ -260,7 +260,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		secondStageThickness = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Second-stage (telescope detector) thickness changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( detectorType != "Telescope" )
 		{
 			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
@@ -275,7 +275,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		detectorThickness = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Detector thickness changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -288,7 +288,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		else if( usingPhantom == false )	G4cout << "Water phantom disabled" << G4endl;
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -301,7 +301,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		else if( multiSV == false )	G4cout << "Now using a single SV" << G4endl;
 		else	G4cout << "Error: " << commandContent << "is not a bool" << G4endl;
 		
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -311,7 +311,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		multiSVbreadth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Breath along which SV are placed changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( multiSV == false )
 		{
 			G4cout << "WARNING: currently only a single SV is enabled" << G4endl;
@@ -326,7 +326,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		svSpacing = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Space between SV changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( multiSV == false )
 		{
 			G4cout << "WARNING: currently only a single SV is enabled" << G4endl;
@@ -341,7 +341,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		cutForRegion = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Cuts around the SV changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		
 		pendingChanges = true;
 	}
@@ -351,7 +351,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		cutForWorld = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
 		G4cout << "Cuts away from the SV changed to " << commandContent << G4endl;
-		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( usingPhantom == false )
 		{
 			G4cout << "WARNING: this value only takes effect when using a water phantom" << G4endl;

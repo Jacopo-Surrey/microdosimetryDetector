@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
    // User action initialization  
 
-  ActionInitialization* actions = new ActionInitialization(analysis);
+  ActionInitialization* actions = new ActionInitialization(analysis, detMess);
   pRunManager->SetUserInitialization(actions);
 
   G4VisManager* visManager = new G4VisExecutive();

@@ -66,6 +66,8 @@ public:
 	
 	G4double GetCutForWorld() { return cutForWorld; }
 	G4double GetCutForRegion() { return cutForRegion; }
+	
+	G4bool GetPendingChangesBool() { return pendingChanges; }
   
 private:
 	G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control

@@ -35,11 +35,16 @@
 #include "G4AccumulableManager.hh"
 #include "G4RunManager.hh"
 
-RunAction::RunAction(AnalysisManager* analysis)
+#include "DetectorMessenger.hh"
+
+#include "G4UImanager.hh"
+
+RunAction::RunAction(AnalysisManager* analysis, DetectorMessenger* detector)
 : G4UserRunAction(),
   iHits(0)
 { 
 	analysisMan = analysis;
+	detectorMess = detector;
 
 	accumulableManager = G4AccumulableManager::Instance();	//see B1
 	accumulableManager -> RegisterAccumulable(iHits);
@@ -56,14 +61,23 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
-  G4int run_number = aRun->GetRunID();
-  G4cout << "### Run " << run_number << " start." << G4endl;
+	if( detectorMess -> GetPendingChangesBool() == true )
+	{
+		G4cout << "ERROR: Your detector has pending changes! "
+			<< "The current run will be aborted" << G4endl;
+		G4cout << "Next time, run /geometrySetup/applyChanges before "
+			<< "initialisation to apply them" << G4endl;
+		
+		hitsRequired = 0;
+	}
+	
+	G4int run_number = aRun->GetRunID();
+	G4cout << "### Run " << run_number << " start." << G4endl;
 
-  accumulableManager -> Reset();
+	accumulableManager -> Reset();
 
-  // Create ROOT file, histograms and ntuple
-  analysisMan -> book();
- 
+	// Create ROOT file, histograms and ntuple
+	analysisMan -> book();
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun)

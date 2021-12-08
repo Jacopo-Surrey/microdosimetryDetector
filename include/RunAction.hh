@@ -37,6 +37,7 @@
 #include <map>
 
 #include "RunMessenger.hh"
+#include "DetectorMessenger.hh"
 
 class G4AccumulableManager;
 
@@ -45,7 +46,7 @@ class RunMessenger;
 class RunAction : public G4UserRunAction
 {
 public:
-    RunAction(AnalysisManager* analysis);
+    RunAction(AnalysisManager* analysis, DetectorMessenger* detector);
 
    ~RunAction();
 
@@ -69,6 +70,7 @@ private:
 	G4AccumulableManager* accumulableManager;
 	
 	AnalysisManager* analysisMan;
+	DetectorMessenger* detectorMess;
 
 	G4Accumulable<G4int> iHits;
 
