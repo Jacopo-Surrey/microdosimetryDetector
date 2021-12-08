@@ -31,14 +31,17 @@ PhysicsList::PhysicsList(DetectorMessenger* detectorMessenger)
 	
 	// check if I'm using a phantom, and therefore if I need
 	// a higher precision in the inner region
-	usingRegion = detectorMessenger->GetUsingPhantomBool();
+	usingRegion = detectorMessenger -> GetUsingPhantomBool();
+	
+	cutForWorld = detectorMessenger -> GetCutForWorld();
+	cutForRegion = detectorMessenger -> GetCutForRegion();
 }
 
 
 void PhysicsList::SetCuts()
 {
-	if( usingRegion == true )	defaultCutValue = 100.*micrometer;
-	else if( usingRegion == false )	defaultCutValue = 0.1*micrometer;
+	if( usingRegion == true )	defaultCutValue = cutForWorld;
+	else if( usingRegion == false )	defaultCutValue = cutForRegion;
 	
 	// default cut values
 	fCutForGamma     = defaultCutValue;
@@ -59,7 +62,7 @@ void PhysicsList::SetCuts()
 		G4Region* region = G4RegionStore::GetInstance()->GetRegion(regName);
 		
 		G4ProductionCuts* cuts = new G4ProductionCuts;
-		G4double highPCut = 0.1*um;
+		G4double highPCut = cutForRegion;
 		
 		cuts->SetProductionCut(highPCut, G4ProductionCuts::GetIndex("gamma"));
 		cuts->SetProductionCut(highPCut, G4ProductionCuts::GetIndex("e-"));

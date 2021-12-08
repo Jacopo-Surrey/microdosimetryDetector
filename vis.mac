@@ -3,6 +3,8 @@
 #
 #
 /control/execute detector.mac
+/control/execute phys.mac
+/geometrySetup/applyChanges
 #
 /run/initialize
 # Use these open statements to open selected visualization
@@ -86,3 +88,5 @@
 
 # Plot axes
 #/vis/scene/add/axes
+
+/control/execute gps_beam.mac

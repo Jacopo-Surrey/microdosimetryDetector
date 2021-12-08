@@ -71,6 +71,7 @@ private:
 	G4double SVspacing;
 	G4int nOfSV; // per row
 	
+	G4double phantomSize; // width
 	G4double highPRegionBufferSize; // size of the water region around the detector edge
 		// where the precision (cut) is still high
 	G4double requiredWidth;

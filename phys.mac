@@ -1,3 +1,2 @@
-/run/setCut 100 um
-
-/run/setCutForRegion highPRegion 0.1 um
+/cuts/custom/setCutsAroundSV 1 um
+/cuts/custom/setCutsElsewhere 1 mm

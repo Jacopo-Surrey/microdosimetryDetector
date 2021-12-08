@@ -94,6 +94,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 		
 		requiredWidth = detectorSizeWidth;
 	}
+	
+	phantomSize = requiredWidth + 300.*mm;
 }
 
 DetectorConstruction::~DetectorConstruction()
@@ -154,8 +156,8 @@ void DetectorConstruction::ConstructWithWaterPhantom()
 	G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 	
 	//Define volumes
-	G4double worldx = 1.*m /2.;
-	G4double worldy = 1.*m /2.;
+	G4double worldx = phantomSize /2.;
+	G4double worldy = phantomSize /2.;
 	G4double worldz = 1.*m /2.;
 
 	// World volume, containing all geometry
@@ -175,9 +177,9 @@ void DetectorConstruction::ConstructWithWaterPhantom()
 								0);
 	
 	//water phantom
-	G4double phantom_x = 300.*mm /2.;
-	G4double phantom_y = 300.*mm /2.;
-	G4double phantom_z = (detectorPositionDepth + 20.*mm) /2.;
+	G4double phantom_x = phantomSize /2.;
+	G4double phantom_y = phantomSize /2.;
+	G4double phantom_z = (detectorPositionDepth + 10.*mm) /2.;
 	
 	G4Box* phantom_box = new G4Box("phantom_box", phantom_x, phantom_y, phantom_z);
 	
@@ -193,7 +195,7 @@ void DetectorConstruction::ConstructWithWaterPhantom()
 	
 	//smaller volume where I can lower the cuts with G4Region -- hence "high precision"
 	G4double highPVol_x = (requiredWidth + highPRegionBufferSize) /2.;
-	G4double highPVol_y = (requiredWidth + highPRegionBufferSize) /2.;
+	G4double highPVol_y = highPVol_x;
 	G4double highPVol_z = detectorSizeThickness/2. + highPRegionBufferSize;
 
 	// Ensure when using WaterProof Microdos the HighP region is bigger than the Epoxy case region

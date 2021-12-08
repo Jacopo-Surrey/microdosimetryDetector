@@ -1,8 +1,10 @@
 /control/execute detector.mac
+/control/execute phys.mac
+/geometrySetup/applyChanges
+
 /run/initialize
-#/control/execute phys.mac
 /control/execute gps_beam.mac
 /run/printProgress 1000
 #/random/setSeeds 1 1
-/run/custom/setRequiredCounts 1234
+/run/custom/setRequiredCounts 100000
 /run/beamOn 1000000000000000

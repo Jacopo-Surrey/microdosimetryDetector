@@ -47,57 +47,68 @@ class G4UIcmdWithoutParameter;
 class DetectorMessenger: public G4UImessenger
 {
 public:
-  DetectorMessenger(AnalysisManager* analysis);
-  ~DetectorMessenger();
-    
-  void SetNewValue(G4UIcommand*, G4String);
-  
-  // functions to read parameters
-  G4String GetTheDetector() { return detectorType; }
-  G4double GetDetectorPositionDepth() { return detectorDepth; }
-  G4double GetDetectorSizeWidth() { return detectorWidth; }
-  G4double GetDetectorSizeThickness() { return detectorThickness; }
-  G4double GetSecondStageSizeDim() { return secondStageDim; }
-  G4double GetSecondStageThickness() { return secondStageThickness; }
-  G4bool GetUsingPhantomBool() { return usingPhantom; }
-  G4bool GetMultiSVBool() { return multiSV; }
-  G4double GetSpaceForMultiSV() { return multiSVbreadth; }
+	DetectorMessenger(AnalysisManager* analysis);
+	~DetectorMessenger();
+	
+	void SetNewValue(G4UIcommand*, G4String);
+	
+	// functions to read parameters
+	G4String GetTheDetector() { return detectorType; }
+	G4double GetDetectorPositionDepth() { return detectorDepth; }
+	G4double GetDetectorSizeWidth() { return detectorWidth; }
+	G4double GetDetectorSizeThickness() { return detectorThickness; }
+	G4double GetSecondStageSizeDim() { return secondStageDim; }
+	G4double GetSecondStageThickness() { return secondStageThickness; }
+	G4bool GetUsingPhantomBool() { return usingPhantom; }
+	G4bool GetMultiSVBool() { return multiSV; }
+	G4double GetSpaceForMultiSV() { return multiSVbreadth; }
+	
+	G4double GetCutForWorld() { return cutForWorld; }
+	G4double GetCutForRegion() { return cutForRegion; }
   
 private:
-  G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control
-  G4UIdirectory *changeDetectorPositionDir;		//subdirectory
-  G4UIdirectory *changeDetectorDimensionDir;	//subdirectory
-  G4UIdirectory *changeDetectorSecondStageDir;		//sub-sub
-  G4UIdirectory *changeMultiSVSetupDir;	//subdirectory
-  
-  G4UIcmdWithAString *changeTheDetectorCmd; ///> Select the detector type
-  G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	
-  G4UIcmdWithADoubleAndUnit *changeDetectorSizeWidthCmd;
-  G4UIcmdWithADoubleAndUnit *changeSecondStageSizeDimCmd;
-  G4UIcmdWithADoubleAndUnit *changeSecondStageThicknessCmd;
-  G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
-  G4UIcmdWithABool *enableWaterPhantomCmd;
-  G4UIcmdWithABool *useMultipleSVCmd;
-  G4UIcmdWithADoubleAndUnit *changeMaximumBreadthForMultiSVCmd;
-  
-  G4UIcmdWithoutParameter *applyChangesToGeometryCmd;	// applies changes to detector position and/or size
-  
-  // ADD SOME WAY TO CHANGE THE CUT IN G4Region
-  
-  // parameters to store
-  G4String detectorType;
-  G4double detectorDepth;
-  G4double detectorWidth;
-  G4double secondStageDim;
-  G4double secondStageThickness;
-  G4double detectorThickness;
-  G4bool usingPhantom;
-  G4bool multiSV;
-  G4double multiSVbreadth;
-  
-  G4bool pendingChanges;
-  
-  AnalysisManager* analysis;
+	G4UIdirectory *changeTheGeometryDir;      ///> UI directory for the geometry control
+	G4UIdirectory *changeDetectorPositionDir;		//subdirectory
+	G4UIdirectory *changeDetectorDimensionDir;	//subdirectory
+	G4UIdirectory *changeDetectorSecondStageDir;		//sub-sub
+	G4UIdirectory *changeMultiSVSetupDir;	//subdirectory
+
+	G4UIdirectory *setCutsDir;	// dir, should really be in its own messenger class
+	
+	G4UIcmdWithAString *changeTheDetectorCmd; ///> Select the detector type
+	G4UIcmdWithADoubleAndUnit *changeDetectorPositionDepthCmd;	
+	G4UIcmdWithADoubleAndUnit *changeDetectorSizeWidthCmd;
+	G4UIcmdWithADoubleAndUnit *changeSecondStageSizeDimCmd;
+	G4UIcmdWithADoubleAndUnit *changeSecondStageThicknessCmd;
+	G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
+	G4UIcmdWithABool *enableWaterPhantomCmd;
+	G4UIcmdWithABool *useMultipleSVCmd;
+	G4UIcmdWithADoubleAndUnit *changeMaximumBreadthForMultiSVCmd;
+	
+	G4UIcmdWithADoubleAndUnit *changeCutForWorld;
+	G4UIcmdWithADoubleAndUnit *changeCutForRegion;
+	
+	G4UIcmdWithoutParameter *applyChangesToGeometryCmd;
+		// applies changes to detector and physics
+	
+	// parameters to store
+	G4String detectorType;
+	G4double detectorDepth;
+	G4double detectorWidth;
+	G4double secondStageDim;
+	G4double secondStageThickness;
+	G4double detectorThickness;
+	G4bool usingPhantom;
+	G4bool multiSV;
+	G4double multiSVbreadth;
+	
+	G4double cutForWorld;
+	G4double cutForRegion;
+	
+	G4bool pendingChanges;
+	//G4bool pendingPhysicsUpdate;
+	
+	AnalysisManager* analysis;
 };
 #endif
 

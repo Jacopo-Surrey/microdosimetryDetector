@@ -14,6 +14,9 @@ public:
 	void 	SetCuts ();
 
 private:
+	G4double cutForWorld;
+	G4double cutForRegion;
+	
 	G4double fCutForGamma;
 	G4double fCutForElectron;
 	G4double fCutForPositron;

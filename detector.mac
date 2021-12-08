@@ -15,5 +15,3 @@
 
 /geometrySetup/detectorPosition/setDepth 10 mm
 
-/geometrySetup/applyChanges
-

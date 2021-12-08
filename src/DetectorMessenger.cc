@@ -50,7 +50,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
     changeTheDetectorCmd = new G4UIcmdWithAString("/geometrySetup/selectDetector", this);
     changeTheDetectorCmd -> SetGuidance("Select the type of detector you wish to use");
     changeTheDetectorCmd -> SetParameterName("Material", false);
-	changeTheDetectorCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeTheDetectorCmd -> AvailableForStates(G4State_PreInit);
 	
 	changeDetectorPositionDir = new G4UIdirectory("/geometrySetup/detectorPosition/");
 	changeDetectorPositionDir -> SetGuidance("Modify the placement of the detector");
@@ -61,7 +61,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorPositionDepthCmd -> SetRange("Depth >= 10. && Depth <= 1000.");
 	changeDetectorPositionDepthCmd -> SetUnitCategory("Length");
 	changeDetectorPositionDepthCmd -> SetDefaultUnit("mm");
-	changeDetectorPositionDepthCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeDetectorPositionDepthCmd -> AvailableForStates(G4State_PreInit);
 	
 	changeDetectorDimensionDir = new G4UIdirectory("/geometrySetup/detectorDimension/");
 	changeDetectorDimensionDir -> SetGuidance("Modify the dimensions of the detector");
@@ -72,7 +72,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 1000.");
 	changeDetectorSizeWidthCmd -> SetUnitCategory("Length");
 	changeDetectorSizeWidthCmd -> SetDefaultUnit("um");
-	changeDetectorSizeWidthCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeDetectorSizeWidthCmd -> AvailableForStates(G4State_PreInit);
 	
 	changeDetectorSizeThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setThickness", this);
 	changeDetectorSizeThicknessCmd -> SetGuidance("Set the thickness of the detector");
@@ -80,7 +80,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeThicknessCmd -> SetRange("Thickness >= 0.1 && Thickness <= 1000.");
 	changeDetectorSizeThicknessCmd -> SetUnitCategory("Length");
 	changeDetectorSizeThicknessCmd -> SetDefaultUnit("um");
-	changeDetectorSizeThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeDetectorSizeThicknessCmd -> AvailableForStates(G4State_PreInit);
 	
 	changeDetectorSecondStageDir = new G4UIdirectory("/geometrySetup/detectorDimension/secondStage");
 	changeDetectorSecondStageDir -> SetGuidance("Modify the dimensions of the second stage (telescope only)");
@@ -91,7 +91,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeSecondStageSizeDimCmd -> SetRange("Diameter >= 0.1 && Diameter <= 1000.");
 	changeSecondStageSizeDimCmd -> SetUnitCategory("Length");
 	changeSecondStageSizeDimCmd -> SetDefaultUnit("um");
-	changeSecondStageSizeDimCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeSecondStageSizeDimCmd -> AvailableForStates(G4State_PreInit);
 
 	changeSecondStageThicknessCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/secondStage/setThickness", this);
 	changeSecondStageThicknessCmd -> SetGuidance("Set the thickness of the second-stage (telescope detector only)");
@@ -99,17 +99,17 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeSecondStageThicknessCmd -> SetRange("Thickness >= 10. && Thickness <= 1000.");
 	changeSecondStageThicknessCmd -> SetUnitCategory("Length");
 	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
-	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit);
 	
 	enableWaterPhantomCmd = new G4UIcmdWithABool("/geometrySetup/enableWaterPhantom", this);
 	enableWaterPhantomCmd -> SetGuidance("If true, the detector is placed inside a water phantom");
 	enableWaterPhantomCmd -> SetParameterName("Phantom", false);
-	enableWaterPhantomCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	enableWaterPhantomCmd -> AvailableForStates(G4State_PreInit);
 	
 	useMultipleSVCmd = new G4UIcmdWithABool("/geometrySetup/useMultipleSV", this);
 	useMultipleSVCmd -> SetGuidance("Set to true for multiple SV, false for a single one");
 	useMultipleSVCmd -> SetParameterName("MultipleSV", false);
-	useMultipleSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	useMultipleSVCmd -> AvailableForStates(G4State_PreInit);
 	
 	changeMultiSVSetupDir = new G4UIdirectory("/geometrySetup/multipleSVsetup");
 	changeMultiSVSetupDir -> SetGuidance("Choose how multiple SV are placed");
@@ -120,11 +120,30 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeMaximumBreadthForMultiSVCmd -> SetRange("Breadth >= 10 && Breadth <= 100000.");
 	changeMaximumBreadthForMultiSVCmd -> SetUnitCategory("Length");
 	changeMaximumBreadthForMultiSVCmd -> SetDefaultUnit("um");
-	changeMaximumBreadthForMultiSVCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	changeMaximumBreadthForMultiSVCmd -> AvailableForStates(G4State_PreInit);
+	
+	setCutsDir = new G4UIdirectory("/cuts/custom");
+	setCutsDir -> SetGuidance("Set cuts for this specific setup");
+	
+	changeCutForRegion = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsAroundSV", this);
+	changeCutForRegion -> SetGuidance("Set the cuts in the region around the SV");
+	changeCutForRegion -> SetParameterName("Cut_SV", false);
+	changeCutForRegion -> SetRange("Cut_SV >= 0.05 && Cut_SV <= 50.");
+	changeCutForRegion -> SetUnitCategory("Length");
+	changeCutForRegion -> SetDefaultUnit("um");
+	changeCutForRegion -> AvailableForStates(G4State_PreInit);
+	
+	changeCutForWorld = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsElsewhere", this);
+	changeCutForWorld -> SetGuidance("When using a water phantom, set the cuts farther away from the SV");
+	changeCutForWorld -> SetParameterName("Cut_ext", false);
+	changeCutForWorld -> SetRange("Cut_ext >= 0.1 && Cut_ext <= 1000.");
+	changeCutForWorld -> SetUnitCategory("Length");
+	changeCutForWorld -> SetDefaultUnit("um");
+	changeCutForWorld -> AvailableForStates(G4State_PreInit);
 	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
     applyChangesToGeometryCmd -> SetGuidance("Apply selected changes to the geometry");
-	applyChangesToGeometryCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
+	applyChangesToGeometryCmd -> AvailableForStates(G4State_PreInit);
 	
 	analysis = analysis_manager;
 	
@@ -138,6 +157,9 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	usingPhantom = false;	// used to crash the program if set to false under some conditions (why?)
 	multiSV = false;
 	multiSVbreadth = 5000*um;
+	
+	cutForWorld = 100.*um;
+	cutForRegion = 0.1*um;
 	
 	pendingChanges = false;
 }
@@ -153,6 +175,8 @@ DetectorMessenger::~DetectorMessenger()
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
 	delete changeMaximumBreadthForMultiSVCmd;
+	delete changeCutForRegion;
+	delete changeCutForWorld;
 	
 	delete applyChangesToGeometryCmd;
 	
@@ -161,6 +185,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeTheGeometryDir;
 	delete changeDetectorSecondStageDir;
 	delete changeMultiSVSetupDir;
+	delete setCutsDir;
 }
 
 void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandContent)
@@ -281,6 +306,31 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		{
 			G4cout << "WARNING: currently only a single SV is enabled" << G4endl;
 			G4cout << "Switch to multiple SV via /geometrySetup/useMultipleSV, otherwise the last command will be ignored" << G4endl;
+		}
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeCutForRegion )
+	{
+		cutForRegion = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Cuts around the SV changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeCutForWorld )
+	{
+		cutForWorld = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Cuts away from the SV changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( usingPhantom == false )
+		{
+			G4cout << "WARNING: this value only takes effect when using a water phantom" << G4endl;
+			G4cout << "Enable it via /geometrySetup/enableWaterPhantom, otherwise the last command will be ignored" << G4endl;
 		}
 		
 		pendingChanges = true;
