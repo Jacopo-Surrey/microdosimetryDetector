@@ -664,6 +664,8 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 		
 		for( int i=0; i<nOfSV; i++)
 		{
+			if( (i % 50) == 0  )	G4cout << "Building row No " << i << G4endl;
+			
 			SVposition_x = start_xy;
 			
 			for( int j=0; j<nOfSV; j++)
