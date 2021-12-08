@@ -69,9 +69,9 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();
 	multiSVbreadth = messenger -> GetSpaceForMultiSV();
-	
 	//SVspacing = std::max(200.*um, detectorSizeThickness);
-	SVspacing = detectorSizeThickness*2.;	//edge-to-edge space
+	SVspacing = messenger -> GetSVspacing();	//edge-to-edge space
+	
 	highPRegionBufferSize = 1.*mm;
 	
 	if( multiSV == true )

@@ -122,24 +122,32 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeMaximumBreadthForMultiSVCmd -> SetDefaultUnit("um");
 	changeMaximumBreadthForMultiSVCmd -> AvailableForStates(G4State_PreInit);
 	
+	changeSpacingBetweenSV = new G4UIcmdWithADoubleAndUnit("/geometrySetup/multipleSVsetup/setSpacing", this);
+	changeSpacingBetweenSV -> SetGuidance("Set the space between the edges of two SV");
+	changeSpacingBetweenSV -> SetParameterName("Space", false);
+	changeSpacingBetweenSV -> SetRange("Space >= 1 && Space <= 1000000.");
+	changeSpacingBetweenSV -> SetUnitCategory("Length");
+	changeSpacingBetweenSV -> SetDefaultUnit("um");
+	changeSpacingBetweenSV -> AvailableForStates(G4State_PreInit);
+	
 	setCutsDir = new G4UIdirectory("/cuts/custom");
 	setCutsDir -> SetGuidance("Set cuts for this specific setup");
 	
-	changeCutForRegion = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsAroundSV", this);
-	changeCutForRegion -> SetGuidance("Set the cuts in the region around the SV");
-	changeCutForRegion -> SetParameterName("Cut_SV", false);
-	changeCutForRegion -> SetRange("Cut_SV >= 0.05 && Cut_SV <= 50.");
-	changeCutForRegion -> SetUnitCategory("Length");
-	changeCutForRegion -> SetDefaultUnit("um");
-	changeCutForRegion -> AvailableForStates(G4State_PreInit);
+	changeCutForRegionCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsAroundSV", this);
+	changeCutForRegionCmd -> SetGuidance("Set the cuts in the region around the SV");
+	changeCutForRegionCmd -> SetParameterName("Cut_SV", false);
+	changeCutForRegionCmd -> SetRange("Cut_SV >= 0.05 && Cut_SV <= 50.");
+	changeCutForRegionCmd -> SetUnitCategory("Length");
+	changeCutForRegionCmd -> SetDefaultUnit("um");
+	changeCutForRegionCmd -> AvailableForStates(G4State_PreInit);
 	
-	changeCutForWorld = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsElsewhere", this);
-	changeCutForWorld -> SetGuidance("When using a water phantom, set the cuts farther away from the SV");
-	changeCutForWorld -> SetParameterName("Cut_ext", false);
-	changeCutForWorld -> SetRange("Cut_ext >= 0.1 && Cut_ext <= 1000.");
-	changeCutForWorld -> SetUnitCategory("Length");
-	changeCutForWorld -> SetDefaultUnit("um");
-	changeCutForWorld -> AvailableForStates(G4State_PreInit);
+	changeCutForWorldCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsElsewhere", this);
+	changeCutForWorldCmd -> SetGuidance("When using a water phantom, set the cuts farther away from the SV");
+	changeCutForWorldCmd -> SetParameterName("Cut_ext", false);
+	changeCutForWorldCmd -> SetRange("Cut_ext >= 0.1 && Cut_ext <= 1000.");
+	changeCutForWorldCmd -> SetUnitCategory("Length");
+	changeCutForWorldCmd -> SetDefaultUnit("um");
+	changeCutForWorldCmd -> AvailableForStates(G4State_PreInit);
 	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
     applyChangesToGeometryCmd -> SetGuidance("Apply selected changes to the geometry");
@@ -157,6 +165,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	usingPhantom = false;	// used to crash the program if set to false under some conditions (why?)
 	multiSV = false;
 	multiSVbreadth = 5000*um;
+	svSpacing = detectorThickness*2;
 	
 	cutForWorld = 100.*um;
 	cutForRegion = 0.1*um;
@@ -175,8 +184,9 @@ DetectorMessenger::~DetectorMessenger()
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
 	delete changeMaximumBreadthForMultiSVCmd;
-	delete changeCutForRegion;
-	delete changeCutForWorld;
+	delete changeSpacingBetweenSV;
+	delete changeCutForRegionCmd;
+	delete changeCutForWorldCmd;
 	
 	delete applyChangesToGeometryCmd;
 	
@@ -311,7 +321,22 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		pendingChanges = true;
 	}
 	
-	else if( command == changeCutForRegion )
+	else if( command == changeSpacingBetweenSV )
+	{
+		svSpacing = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Space between SV changed to " << commandContent << G4endl;
+		G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( multiSV == false )
+		{
+			G4cout << "WARNING: currently only a single SV is enabled" << G4endl;
+			G4cout << "Switch to multiple SV via /geometrySetup/useMultipleSV, otherwise the last command will be ignored" << G4endl;
+		}
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeCutForRegionCmd )
 	{
 		cutForRegion = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
@@ -321,7 +346,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		pendingChanges = true;
 	}
 	
-	else if( command == changeCutForWorld )
+	else if( command == changeCutForWorldCmd )
 	{
 		cutForWorld = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		

@@ -62,6 +62,7 @@ public:
 	G4bool GetUsingPhantomBool() { return usingPhantom; }
 	G4bool GetMultiSVBool() { return multiSV; }
 	G4double GetSpaceForMultiSV() { return multiSVbreadth; }
+	G4double GetSVspacing() { return svSpacing; }
 	
 	G4double GetCutForWorld() { return cutForWorld; }
 	G4double GetCutForRegion() { return cutForRegion; }
@@ -84,9 +85,10 @@ private:
 	G4UIcmdWithABool *enableWaterPhantomCmd;
 	G4UIcmdWithABool *useMultipleSVCmd;
 	G4UIcmdWithADoubleAndUnit *changeMaximumBreadthForMultiSVCmd;
+	G4UIcmdWithADoubleAndUnit *changeSpacingBetweenSV;
 	
-	G4UIcmdWithADoubleAndUnit *changeCutForWorld;
-	G4UIcmdWithADoubleAndUnit *changeCutForRegion;
+	G4UIcmdWithADoubleAndUnit *changeCutForWorldCmd;
+	G4UIcmdWithADoubleAndUnit *changeCutForRegionCmd;
 	
 	G4UIcmdWithoutParameter *applyChangesToGeometryCmd;
 		// applies changes to detector and physics
@@ -101,6 +103,7 @@ private:
 	G4bool usingPhantom;
 	G4bool multiSV;
 	G4double multiSVbreadth;
+	G4double svSpacing;
 	
 	G4double cutForWorld;
 	G4double cutForRegion;
