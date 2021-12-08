@@ -46,7 +46,7 @@ SteppingAction::SteppingAction(AnalysisManager* pAnalysis)
 	
 	activeVolumeName = "SV_phys_1";
 	
-	G4cout << "Outputting sensitive volume: " << activeVolumeName << G4endl;
+	G4cout << "SteppingAction: outputting sensitive volume: " << activeVolumeName << G4endl;
 }
 
 SteppingAction::~SteppingAction()
