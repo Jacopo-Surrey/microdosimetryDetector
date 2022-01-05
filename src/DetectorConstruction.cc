@@ -216,6 +216,11 @@ void DetectorConstruction::ConstructWithWaterPhantom()
 	
 	G4double detectorDepth = detectorPositionDepth;
 	
+	if( detectorDepth < highPVol_z )
+	{
+		G4cout << "WARNING: detector too big to be placed at this depth. Volumes might overlap!" << G4endl;
+	}
+	
 	G4double detectorCentre_z = -phantom_z + detectorDepth;
 	
 	G4ThreeVector highP_position = G4ThreeVector( 0 , 0 , detectorCentre_z );
