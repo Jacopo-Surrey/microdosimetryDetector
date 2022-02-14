@@ -54,7 +54,7 @@ SteppingAction::~SteppingAction()
 }
 
 void SteppingAction::UserSteppingAction(const G4Step* aStep)
-{ 
+{ /*
   G4SteppingManager*  steppingManager = fpSteppingManager;
   G4Track* theTrack = aStep -> GetTrack();
 
@@ -85,6 +85,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 	       (secondaryParticleName =="GenericIon"))
                analysis -> FillSecondaries(AA, charge, secondaryParticleKineticEnergy); 	
           }
-   }
+   }*/
 }
 
