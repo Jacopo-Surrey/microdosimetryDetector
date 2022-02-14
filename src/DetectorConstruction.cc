@@ -132,6 +132,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	
 	else if( detectorType == "Silicon" ) ConstructSiliconDetector();
 	
+	else if( detectorType == "WaterPixel" ) ConstructWaterPixelDetector();
+	
 	else
 	{
 		G4cout << "ERROR: " << detectorType << " is not an allowed detector type. ";
@@ -1261,6 +1263,119 @@ void DetectorConstruction::ConstructSiliconDetector()	// change return value   -
 	
 	return physical_world; 
 */
+}
+
+void DetectorConstruction::ConstructWaterPixelDetector()
+{
+	G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+	
+	G4double pixelSide = detectorSizeWidth /2.;
+	
+	G4Box* pixel_box = new G4Box("pixel_box", pixelSide, pixelSide, pixelSide);
+	
+	G4LogicalVolume* logical_pixel = new G4LogicalVolume(pixel_box, water, "pixel_log", 0,0,0);
+	
+	G4VisAttributes pixelColour(G4Colour(0., 0.2, 0.6));
+	logical_pixel -> SetVisAttributes(pixelColour);
+	
+	G4double pixelSpacing = SVspacing;
+	
+	G4ThreeVector pixelPosition;
+	
+	G4double pixelPosition_z = 0.; // centered inside region
+	
+	if( nOfSV == 1 )
+	{
+		pixelPosition = {0., 0., pixelPosition_z};
+	
+		new G4PVPlacement(0, pixelPosition, logical_pixel, "pixel_phys",
+						logical_motherVolumeForDetector,
+						false, 0, checkOverlap);
+	}
+	
+	else if( nOfSV > 1 )
+	{
+		std::ostringstream PVName;
+		
+		G4int volNo;
+		G4double pixelPosition_x, pixelPosition_y;
+		
+		G4double start_xy = -requiredWidth/2. + pixelSide;
+			// initial position (volume's centre) of every row and column
+		
+		pixelPosition_y = start_xy;
+		
+		for( int i=0; i<nOfSV; i++)
+		{
+			if( (i % 50) == 0  )	G4cout << "Building row No " << i << G4endl;
+			
+			pixelPosition_x = start_xy;
+			
+			for( int j=0; j<nOfSV; j++)
+			{
+				volNo = i*nOfSV +j +1;
+				
+				// sensitive volume
+				PVName << "pixel_phys_" << volNo ;
+				pixelPosition = {pixelPosition_x, pixelPosition_y, pixelPosition_z};
+				new G4PVPlacement(0, pixelPosition, logical_pixel, PVName.str(),
+							logical_motherVolumeForDetector,
+							false, 0, checkOverlap);
+				PVName.str("");	//reset the string
+				
+				// next position
+				pixelPosition_x = pixelPosition_x + pixelSide*2. + pixelSpacing;
+			}
+			
+			// next position
+			pixelPosition_y = pixelPosition_y + pixelSide*2. + pixelSpacing;
+		}
+	}
+	
+	G4double SVside = pixelSide;
+	G4double SVthickness = detectorSizeThickness /2.;
+	
+	if( SVthickness > SVside )	G4cout << "Your SV is thicker than the pixel?!" << G4endl;
+	
+	G4Box* SV_box = new G4Box("SV_box", SVside, SVside, SVthickness);
+
+	G4LogicalVolume* logical_SV = new G4LogicalVolume(SV_box, water, "SV_log", 0,0,0);
+	
+	G4VisAttributes SVcolour(G4Colour(0., 0.2, 0.6));
+	SVcolour.SetForceSolid(true);
+	logical_SV -> SetVisAttributes(SVcolour);
+
+	G4double SVoffset_z = 0.;
+	
+	G4ThreeVector SVposition = {0., 0., SVoffset_z};
+	
+	// sensitive volume
+	G4String PVName = "SV_phys";
+	new G4PVPlacement(0, SVposition, logical_SV, PVName,
+					logical_pixel,
+					false, 0, checkOverlap);
+	
+	// thin volume to score kinetic energy -- NOT IMPLEMENTED YET!
+	G4double kinScorer_x = pixelSide;
+	G4double kinScorer_y = pixelSide; 
+	G4double kinScorer_z = 0.1*um /2.; 
+	
+	G4Box* kinScorer_box = new G4Box("kinScorer_box", kinScorer_x, kinScorer_y, kinScorer_z);
+	
+	G4LogicalVolume* logical_kinScorer = new G4LogicalVolume(kinScorer_box, water, "kinScorer_log", 0,0,0);
+	
+	//G4double kinScorer_depth = -pixelSide +kinScorer_z; // beginning of pixel
+	G4double kinScorer_depth = SVoffset_z -SVthickness -kinScorer_z; // just before SV
+	
+	G4ThreeVector kinScorerPosition = {0,0, kinScorer_depth};
+	
+	new G4PVPlacement(0, kinScorerPosition, logical_kinScorer, "kin_phys",
+				logical_pixel,
+				false, 0, checkOverlap);
+
+	G4VisAttributes kinScorerColour(G4Colour(0., 0.2, 0.6));
+	kinScorerColour.SetForceSolid(false);
+	logical_kinScorer -> SetVisAttributes(kinScorerColour);
 }
 
 void DetectorConstruction::ConstructSDandField()

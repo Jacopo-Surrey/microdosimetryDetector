@@ -89,6 +89,7 @@ private:
 	void ConstructWPMicroDiamondDetector();	//review later -- highP region size to be changed accordingly -- move SV to middle of highP
 	void ConstructTelescopeDetector();	// to do: move SV to middle of highP
 	void ConstructSiliconDetector();	// commented out
+	void ConstructWaterPixelDetector();
 	
 	G4bool checkOverlap = false;
 };
