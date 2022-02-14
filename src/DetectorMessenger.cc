@@ -149,6 +149,14 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeCutForWorldCmd -> SetDefaultUnit("um");
 	changeCutForWorldCmd -> AvailableForStates(G4State_PreInit);
 	
+	changeRegionWidthCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setWidthAroundSV", this);
+	changeRegionWidthCmd -> SetGuidance("When using a water phantom, set the width of the region around the SV where setCutsAroundSV is applied");
+	changeRegionWidthCmd -> SetParameterName("Region_width", false);
+	changeRegionWidthCmd -> SetRange("Region_width >= 0.5 && Region_width <= 5000.");
+	changeRegionWidthCmd -> SetUnitCategory("Length");
+	changeRegionWidthCmd -> SetDefaultUnit("um");
+	changeRegionWidthCmd -> AvailableForStates(G4State_PreInit);
+	
 	applyChangesToGeometryCmd = new G4UIcmdWithoutParameter("/geometrySetup/applyChanges",this);
     applyChangesToGeometryCmd -> SetGuidance("Apply selected changes to the geometry");
 	applyChangesToGeometryCmd -> AvailableForStates(G4State_PreInit);
@@ -169,6 +177,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	
 	cutForWorld = 100.*um;
 	cutForRegion = 0.1*um;
+	regionWidth = 1*mm;
 	
 	pendingChanges = false;
 }
@@ -187,6 +196,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeSpacingBetweenSV;
 	delete changeCutForRegionCmd;
 	delete changeCutForWorldCmd;
+	delete changeRegionWidthCmd;
 	
 	delete applyChangesToGeometryCmd;
 	
@@ -203,7 +213,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 
 	if( command == changeTheDetectorCmd )
 	{
-		if( commandContent == "Diamond" || commandContent == "MicroDiamond" || commandContent == "WPMicroDiamond" || commandContent == "Telescope" || commandContent == "Silicon" )
+		if( commandContent == "Diamond" || commandContent == "MicroDiamond" || commandContent == "WPMicroDiamond" || commandContent == "Telescope" || commandContent == "Silicon" || commandContent == "WaterPixel" )
 		{
 			detectorType = commandContent;
 			
@@ -352,6 +362,21 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Cuts away from the SV changed to " << commandContent << G4endl;
 		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		if( usingPhantom == false )
+		{
+			G4cout << "WARNING: this value only takes effect when using a water phantom" << G4endl;
+			G4cout << "Enable it via /geometrySetup/enableWaterPhantom, otherwise the last command will be ignored" << G4endl;
+		}
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeRegionWidthCmd )
+	{
+		regionWidth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "Width of the region around the SV with different cuts changed to " << commandContent << G4endl;
+		
 		if( usingPhantom == false )
 		{
 			G4cout << "WARNING: this value only takes effect when using a water phantom" << G4endl;

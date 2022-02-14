@@ -72,7 +72,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	//SVspacing = std::max(200.*um, detectorSizeThickness);
 	SVspacing = messenger -> GetSVspacing();	//edge-to-edge space
 	
-	highPRegionBufferSize = 1.*mm;
+	//highPRegionBufferSize = 1.*mm;
+	highPRegionBufferSize = messenger -> GetRegionWidth();
 	
 	if( multiSV == true )
 	{

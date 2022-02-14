@@ -66,6 +66,7 @@ public:
 	
 	G4double GetCutForWorld() { return cutForWorld; }
 	G4double GetCutForRegion() { return cutForRegion; }
+	G4double GetRegionWidth() { return regionWidth; }
 	
 	G4bool GetPendingChangesBool() { return pendingChanges; }
   
@@ -91,6 +92,7 @@ private:
 	
 	G4UIcmdWithADoubleAndUnit *changeCutForWorldCmd;
 	G4UIcmdWithADoubleAndUnit *changeCutForRegionCmd;
+	G4UIcmdWithADoubleAndUnit *changeRegionWidthCmd;
 	
 	G4UIcmdWithoutParameter *applyChangesToGeometryCmd;
 		// applies changes to detector and physics
@@ -109,6 +111,7 @@ private:
 	
 	G4double cutForWorld;
 	G4double cutForRegion;
+	G4double regionWidth;
 	
 	G4bool pendingChanges;
 	//G4bool pendingPhysicsUpdate;
