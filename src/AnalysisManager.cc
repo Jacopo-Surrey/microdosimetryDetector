@@ -78,22 +78,28 @@ void AnalysisManager::book()
 	fNtColId[3] = manager -> CreateNtupleIColumn("ZZ");		//particle Z
 	fNtColId[4] = manager -> CreateNtupleSColumn("SV_name");	//volume being recorded
 	fNtColId[5] = manager -> CreateNtupleIColumn("eventID");
+	fNtColId[6] = manager -> CreateNtupleDColumn("loss_keV");	// kin energy lost by the primary particle
+	manager -> FinishNtuple();
 	
+	manager -> CreateNtuple("3_kinetic_energy", "kinetic_energy");
+	fNtColId[7] = manager -> CreateNtupleDColumn("K_keV");	// kin energy scored
+	fNtColId[8] = manager -> CreateNtupleIColumn("ZZ");		//particle Z
+	fNtColId[9] = manager -> CreateNtupleIColumn("eventID");
 	manager -> FinishNtuple();
 
-	//creating a ntuple, containing the information about secondary particles
+	/*//creating a ntuple, containing the information about secondary particles
 	manager -> CreateNtuple("3_secondary_particles", "secondary_particles");
 	fNtColId[6] = manager -> CreateNtupleDColumn("AA");
 	fNtColId[7] = manager -> CreateNtupleDColumn("ZZ");
 	fNtColId[8] = manager -> CreateNtupleDColumn("Kin_keV");
-	manager -> FinishNtuple();
+	manager -> FinishNtuple();*/
 
-	// creating Energy lost by primaries Ntuple
+	/*// creating Energy lost by primaries Ntuple
 	manager -> CreateNtuple("4_energy_lost", "energy_lost");
 	fNtColId[9] = manager -> CreateNtupleDColumn("Elost_keV");
 	fNtColId[10] = manager -> CreateNtupleDColumn("Ein_keV");
 	fNtColId[11] = manager -> CreateNtupleDColumn("Eout_keV");
-	manager -> FinishNtuple();
+	manager -> FinishNtuple();*/
 
   
 	factoryOn = true;    
@@ -107,7 +113,7 @@ void AnalysisManager::SetPrimaryEnergy(G4double energy)
 	manager -> AddNtupleRow(1); 
 }
 
-void AnalysisManager::StoreEnergyDeposition(G4double edep, G4double pathlen, G4int zz, G4String activeV, G4int eventID)
+void AnalysisManager::StoreEnergyDeposition(G4double edep, G4double pathlen, G4int zz, G4String activeV, G4int eventID, G4double kinLoss)
 {
 	G4AnalysisManager* manager = G4AnalysisManager::Instance();
 	manager -> FillNtupleDColumn(2, fNtColId[1], edep/keV);
@@ -115,10 +121,20 @@ void AnalysisManager::StoreEnergyDeposition(G4double edep, G4double pathlen, G4i
 	manager -> FillNtupleIColumn(2, fNtColId[3], zz);
 	manager -> FillNtupleSColumn(2, fNtColId[4], activeV);
 	manager -> FillNtupleIColumn(2, fNtColId[5], eventID);
+	manager -> FillNtupleDColumn(2, fNtColId[6], kinLoss/keV);
 	manager -> AddNtupleRow(2); 
 }
 
-void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy)
+void AnalysisManager::ScoreKineticEnergy(G4double kin, G4int zz, G4int eventID)
+{
+	G4AnalysisManager* manager = G4AnalysisManager::Instance();
+	manager -> FillNtupleDColumn(3, fNtColId[7], kin/keV);
+	manager -> FillNtupleIColumn(3, fNtColId[8], zz);
+	manager -> FillNtupleIColumn(3, fNtColId[9], eventID);
+	manager -> AddNtupleRow(3);  
+}
+
+/*void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy)
 {
 
   G4AnalysisManager* manager = G4AnalysisManager::Instance();
@@ -126,16 +142,16 @@ void AnalysisManager::FillSecondaries(G4int AA, G4double charge, G4double energy
   manager -> FillNtupleDColumn(3, fNtColId[7], charge);
   manager -> FillNtupleDColumn(3, fNtColId[8], energy/keV);
   manager -> AddNtupleRow(3);  
-}
+}*/
 
-void AnalysisManager::StorePrimaryEnergyLost(G4double elost, G4double ein, G4double eout)
+/*void AnalysisManager::StorePrimaryEnergyLost(G4double elost, G4double ein, G4double eout)
 {
 	G4AnalysisManager* manager = G4AnalysisManager::Instance();
 	manager -> FillNtupleDColumn(4, fNtColId[9], elost/keV);
 	manager -> FillNtupleDColumn(4, fNtColId[10], ein/keV);
 	manager -> FillNtupleDColumn(4, fNtColId[11], eout/keV);
 	manager -> AddNtupleRow(4);
-}
+}*/
  
 
 void AnalysisManager::finish() 

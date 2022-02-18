@@ -196,6 +196,15 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 	
 	if( volumeCheckRequired == true )	volumeNameToOutput = activeVolumeInThisEvent;
 	else	volumeNameToOutput = activeVolumeName;
+	
+	// does it work like this? to be rewritten
+	G4double elost = Ek_in - Ek_out;
+	//if (elost>0)
+	//	analysis-> StorePrimaryEnergyLost(elost, Ek_in, Ek_out);
+	// restore private variables to default values
+	firstStep=true;
+	Ek_in=0.;
+	Ek_out=0.;
 
 	if (totalEdepInOneEvent!=0)
 	{
@@ -204,17 +213,10 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 											totalPathLengthInOneEvent,
 											maxZinsideDetector,
 											volumeNameToOutput,
-											eventID
+											eventID,
+											elost
 										);
 	
 	runAction->IncreaseHitCount();
 	}
-	
-	G4double elost = Ek_in - Ek_out;
-	if (elost>0)
-		analysis-> StorePrimaryEnergyLost(elost, Ek_in, Ek_out);
-	// restore private variables to default values
-	firstStep=true;
-	Ek_in=0.;
-	Ek_out=0.;
 }

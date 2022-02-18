@@ -1369,7 +1369,7 @@ void DetectorConstruction::ConstructWaterPixelDetector()
 	
 	G4ThreeVector kinScorerPosition = {0,0, kinScorer_depth};
 	
-	new G4PVPlacement(0, kinScorerPosition, logical_kinScorer, "kin_phys",
+	new G4PVPlacement(0, kinScorerPosition, logical_kinScorer, "kinScorer_phys",
 				logical_pixel,
 				false, 0, checkOverlap);
 

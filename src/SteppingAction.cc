@@ -37,6 +37,9 @@
 #include "AnalysisManager.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "G4StepPoint.hh"
+#include "G4RunManager.hh"
+
 #include "DetectorConstruction.hh"
 
 SteppingAction::SteppingAction(AnalysisManager* pAnalysis)
@@ -44,9 +47,10 @@ SteppingAction::SteppingAction(AnalysisManager* pAnalysis)
 	analysis = pAnalysis;
 	fSecondary = 0;
 	
-	activeVolumeName = "SV_phys_1";
+	kinScorerName = "kinScorer_phys";
 	
-	G4cout << "SteppingAction: outputting sensitive volume: " << activeVolumeName << G4endl;
+	//activeVolumeName = "SV_phys_1";
+	//G4cout << "SteppingAction: outputting sensitive volume: " << activeVolumeName << G4endl;
 }
 
 SteppingAction::~SteppingAction()
@@ -54,7 +58,39 @@ SteppingAction::~SteppingAction()
 }
 
 void SteppingAction::UserSteppingAction(const G4Step* aStep)
-{ /*
+{ 
+	G4StepPoint* preStepPoint = aStep -> GetPreStepPoint();
+	//G4StepPoint* postStepPoint = aStep -> GetPostStepPoint();
+	
+	G4String preStepVolumeName = preStepPoint -> GetPhysicalVolume() -> GetName();
+	//G4String postStepVolumeName = postStepPoint -> GetPhysicalVolume() -> GetName();
+	
+	// if it's the first (!) step inside the desired (very thin!) volume
+	if( (preStepPoint -> GetStepStatus() == fGeomBoundary) && (preStepVolumeName == kinScorerName) )
+	{
+		// only consider ions, protons, and neutrons for path length
+		G4String particleName = aStep -> GetTrack() -> GetParticleDefinition() -> GetParticleName();
+		G4int particleZ = aStep -> GetTrack() -> GetParticleDefinition() -> GetAtomicNumber();
+		
+		if ( (particleZ > 0) || (particleName == "neutron"))
+		{	
+			G4double kin = preStepPoint -> GetKineticEnergy();
+			
+			G4int eventID = G4RunManager::GetRunManager() ->
+								GetCurrentEvent() -> GetEventID();
+			
+			analysis -> ScoreKineticEnergy(kin, particleZ, eventID);
+		}
+	}
+	
+	/*if( (postStepVolumeName == kinScorerName) && (preStepVolumeName != kinScorerName)  )
+	{
+		G4double kin = postStepPoint -> GetKineticEnergy();
+		
+		G4cout << "SCORED KINETIC ENERGY: " << kin << G4endl;
+	}*/
+	
+	/*
   G4SteppingManager*  steppingManager = fpSteppingManager;
   G4Track* theTrack = aStep -> GetTrack();
 
