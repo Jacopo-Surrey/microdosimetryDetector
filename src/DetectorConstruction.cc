@@ -1355,7 +1355,7 @@ void DetectorConstruction::ConstructWaterPixelDetector()
 					logical_pixel,
 					false, 0, checkOverlap);
 	
-	// thin volume to score kinetic energy -- NOT IMPLEMENTED YET!
+	// thin volume to score kinetic energy
 	G4double kinScorer_x = pixelSide;
 	G4double kinScorer_y = pixelSide; 
 	G4double kinScorer_z = 0.1*um /2.; 
