@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import glob
 
@@ -19,10 +20,17 @@ output_name = ntuple_name + "_t" + "*" + ".csv"
 output_list = glob.glob(output_name)
 
 for this_file in output_list :	
-	energy_thread, length_thread = np.loadtxt(this_file, delimiter=',', unpack=True, usecols=(0,1) )
+	print("Reading " + this_file)
+	
+	# Using pandas to read is faster
+	data = pd.read_csv(this_file, sep=',', header=None, names=["E", "l"], usecols=[0,1], comment="#")
+	energy_thread = data.E.to_numpy()
+	length_thread = data.l.to_numpy()
 	
 	energy = np.append(energy, energy_thread)
 	length = np.append(length, length_thread)
+	
+	print("... got " + str(len(energy_thread)) + " hits" )
 
 # Experimentally, the mean path length is calculated geometrically as a mean chord length.
 # Here for convenience it's taken by averaging the effective path lengths.
@@ -36,8 +44,8 @@ conversion_factor = 1.
 # If the previous value is not overriden by the user, this script will attempt to read geometry.mac
 # and provide a factor accordingly
 if conversion_factor == 1. :
-	detector = np.array(["Diamond", "MicroDiamond", "Silicon", "SiliconBridge"])
-	factor = np.array([0.32, 0.32, 0.57, 0.57])	# conversion factor based on material stopping power
+	detector = np.array(["Diamond", "MicroDiamond", "Silicon", "SiliconBridge", "WaterPixel"])
+	factor = np.array([0.32, 0.32, 0.57, 0.57, 1.])	# conversion factor based on material stopping power
 	
 	with open("detector.mac") as search:
 		for line in search:
@@ -71,12 +79,7 @@ bins_per_dec = 60
 
 n_bins = n_decades * bins_per_dec
 
-y_bins = np.zeros(n_bins)
-
-y_bins[0] = 10**exp_start
-
-for i in range(1, n_bins) :
-	y_bins[i] = y_bins[i-1] * 10**( 1 / bins_per_dec )
+y_bins = np.array([ 10**exp_start * 10**(i/bins_per_dec) for i in range(0, n_bins) ])
 
 
 # Create the histogram
