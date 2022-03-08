@@ -114,7 +114,7 @@ fig, ax1 = plt.subplots()
 
 color = 'tab:blue'
 
-ax1.semilogx( y_bins, y_bins * f, linewidth=0.5, color=color  )
+ax1.semilogx( y_bins, y_bins * f * np.log(10), linewidth=0.5, color=color  )
 
 ax1.set_xlabel(r'$y \,\, [keV / \mu m]$')
 ax1.set_ylabel(r'$y \cdot f(y) $', color=color)
@@ -124,7 +124,7 @@ ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
 color = 'tab:red'
 
-ax2.semilogx( y_bins, y_bins * d, linewidth=0.5, color=color )
+ax2.semilogx( y_bins, y_bins * d * np.log(10), linewidth=0.5, color=color )
 
 ax2.set_ylabel(r'$y \cdot d(y) $', color=color)
 ax2.tick_params(axis='y', labelcolor=color)
