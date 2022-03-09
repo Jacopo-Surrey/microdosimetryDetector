@@ -380,7 +380,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		if( usingPhantom == false )
 		{
 			G4cout << "WARNING: this value only takes effect when using a water phantom" << G4endl;
-			G4cout << "Enable it via /geometrySetup/enableWaterPhantom, otherwise the last command will be ignored" << G4endl;
+			G4cout << "Enable it via /geometrySetup/enableWaterPhantom, otherwise the last command will define the size of the world volume" << G4endl;
+				// the last effect is not ideal and will be changed later
 		}
 		
 		pendingChanges = true;

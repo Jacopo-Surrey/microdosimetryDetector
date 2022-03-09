@@ -74,6 +74,7 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	
 	//highPRegionBufferSize = 1.*mm;
 	highPRegionBufferSize = messenger -> GetRegionWidth();
+		// also sets the size of the world volume when w/o water phantom
 	
 	if( multiSV == true )
 	{
@@ -254,9 +255,9 @@ void DetectorConstruction::ConstructWithoutWaterPhantom()
 	G4Material* vacuum = new G4Material("Galactic", Z, A,
 						 vacuumDensity,kStateGas,temperature,pressure);
 	
-	G4double worldx = 0.5 * m;  //half length!!!!
-	G4double worldy = 0.5 * m;
-	G4double worldz = 0.5 * m;
+	G4double worldx = (requiredWidth + highPRegionBufferSize) /2.;
+	G4double worldy = worldx;
+	G4double worldz = detectorSizeThickness/2. + highPRegionBufferSize;
 
 	// World volume, containing all geometry
 	G4Box* world = new G4Box("world_box", worldx, worldy, worldz);
