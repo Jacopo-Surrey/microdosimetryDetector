@@ -59,13 +59,14 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	analysis = analysis_manager;
 	messenger = detector_messenger;
 	
-	// the following are currently only implemented for MicroDiamond
+	// the following are not implemented for evert detector yet
 	detectorType = messenger -> GetTheDetector();
 	detectorPositionDepth = messenger -> GetDetectorPositionDepth();
 	detectorSizeWidth = messenger -> GetDetectorSizeWidth();
 	detectorSizeThickness = messenger -> GetDetectorSizeThickness();
 	secondStageSizeDim = messenger -> GetSecondStageSizeDim();
 	secondStageThickness = messenger -> GetSecondStageThickness();
+	pixelKinScoring = messenger -> GetPixelKinScoring();	// water pixel only
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();
 	multiSVbreadth = messenger -> GetSpaceForMultiSV();
@@ -1356,27 +1357,38 @@ void DetectorConstruction::ConstructWaterPixelDetector()
 					logical_pixel,
 					false, 0, checkOverlap);
 	
-	// thin volume to score kinetic energy
-	G4double kinScorer_x = pixelSide;
-	G4double kinScorer_y = pixelSide; 
-	G4double kinScorer_z = 0.1*um /2.; 
-	
-	G4Box* kinScorer_box = new G4Box("kinScorer_box", kinScorer_x, kinScorer_y, kinScorer_z);
-	
-	G4LogicalVolume* logical_kinScorer = new G4LogicalVolume(kinScorer_box, water, "kinScorer_log", 0,0,0);
-	
-	//G4double kinScorer_depth = -pixelSide +kinScorer_z; // beginning of pixel
-	G4double kinScorer_depth = SVoffset_z -SVthickness -kinScorer_z; // just before SV
-	
-	G4ThreeVector kinScorerPosition = {0,0, kinScorer_depth};
-	
-	new G4PVPlacement(0, kinScorerPosition, logical_kinScorer, "kinScorer_phys",
-				logical_pixel,
-				false, 0, checkOverlap);
+	if( pixelKinScoring != 0 && pixelKinScoring != 3 )
+	{
+		// thin volume to score kinetic energy
+		G4double kinScorer_x = pixelSide;
+		G4double kinScorer_y = pixelSide; 
+		G4double kinScorer_z = 0.1*um /2.; 
+		
+		G4Box* kinScorer_box = new G4Box("kinScorer_box", kinScorer_x, kinScorer_y, kinScorer_z);
+		
+		G4LogicalVolume* logical_kinScorer = new G4LogicalVolume(kinScorer_box, water, "kinScorer_log", 0,0,0);
+		
+		G4double kinScorer_depth;
+		
+		if( pixelKinScoring == 1 || pixelKinScoring == 4 )
+		{
+			kinScorer_depth = -pixelSide +kinScorer_z; // beginning of pixel
+		}
+		else if( pixelKinScoring == 2 || pixelKinScoring == 5 )
+		{
+			kinScorer_depth = SVoffset_z -SVthickness -kinScorer_z; // just before SV
+		}
+		
+		G4ThreeVector kinScorerPosition = {0,0, kinScorer_depth};
+		
+		new G4PVPlacement(0, kinScorerPosition, logical_kinScorer, "kinScorer_phys",
+					logical_pixel,
+					false, 0, checkOverlap);
 
-	G4VisAttributes kinScorerColour(G4Colour(0., 0.2, 0.6));
-	kinScorerColour.SetForceSolid(false);
-	logical_kinScorer -> SetVisAttributes(kinScorerColour);
+		G4VisAttributes kinScorerColour(G4Colour(0., 0.2, 0.6));
+		kinScorerColour.SetForceSolid(false);
+		logical_kinScorer -> SetVisAttributes(kinScorerColour);
+	}
 }
 
 void DetectorConstruction::ConstructSDandField()
@@ -1402,6 +1414,12 @@ void DetectorConstruction::ConstructSDandField()
 		SensitiveDetector* SDs2 = new SensitiveDetector("SDs2", "DetectorStage2HitsCollection", "Estage", analysis);
 		G4SDManager::GetSDMpointer()->AddNewDetector(SDs2);
 		SetSensitiveDetector("SV_Estage_log", SDs2);
+	}
+	
+	// TPS-like kinetic energy scoring
+	if( ( detectorType == "WaterPixel" ) && ( pixelKinScoring == 3 || pixelKinScoring == 4 || pixelKinScoring == 5 ) )
+	{
+		G4cout << "Additional detector to be added. CURRENTLY UNIMPLEMENTED!" << G4endl;
 	}
 
 }

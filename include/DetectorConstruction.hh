@@ -64,6 +64,8 @@ private:
 	G4double secondStageSizeDim;
 	G4double secondStageThickness;
 	
+	G4int pixelKinScoring;
+	
 	G4bool usingPhantom;
 	
 	G4bool multiSV;

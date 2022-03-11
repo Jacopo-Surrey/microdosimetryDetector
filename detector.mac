@@ -10,6 +10,9 @@
 #/geometrySetup/detectorDimension/secondStage/setWidth 500 um
 #/geometrySetup/detectorDimension/secondStage/setThickness 500 um
 
+# the following only affect the WaterPixel detector
+#/geometrySetup/setupWaterPixel/selectKinScoring 0
+
 /geometrySetup/useMultipleSV true
 /geometrySetup/multipleSVsetup/setSpacing 50 um
 /geometrySetup/multipleSVsetup/setBreadth 50000 um

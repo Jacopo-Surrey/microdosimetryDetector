@@ -43,6 +43,7 @@ class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithAString;
 class G4UIcmdWithABool;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWithAnInteger;
 
 class DetectorMessenger: public G4UImessenger
 {
@@ -59,6 +60,7 @@ public:
 	G4double GetDetectorSizeThickness() { return detectorThickness; }
 	G4double GetSecondStageSizeDim() { return secondStageDim; }
 	G4double GetSecondStageThickness() { return secondStageThickness; }
+	G4int GetPixelKinScoring() { return pixelKinScoring; }
 	G4bool GetUsingPhantomBool() { return usingPhantom; }
 	G4bool GetMultiSVBool() { return multiSV; }
 	G4double GetSpaceForMultiSV() { return multiSVbreadth; }
@@ -75,6 +77,7 @@ private:
 	G4UIdirectory *changeDetectorPositionDir;		//subdirectory
 	G4UIdirectory *changeDetectorDimensionDir;	//subdirectory
 	G4UIdirectory *changeDetectorSecondStageDir;		//sub-sub
+	G4UIdirectory *changeWaterPixelSettingsDir;
 	G4UIdirectory *changeMultiSVSetupDir;	//subdirectory
 
 	G4UIdirectory *setCutsDir;	// dir, should really be in its own messenger class
@@ -85,6 +88,7 @@ private:
 	G4UIcmdWithADoubleAndUnit *changeSecondStageSizeDimCmd;
 	G4UIcmdWithADoubleAndUnit *changeSecondStageThicknessCmd;
 	G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
+	G4UIcmdWithAnInteger *selectPixelKinScoringTypeCmd;
 	G4UIcmdWithABool *enableWaterPhantomCmd;
 	G4UIcmdWithABool *useMultipleSVCmd;
 	G4UIcmdWithADoubleAndUnit *changeMaximumBreadthForMultiSVCmd;
@@ -104,6 +108,7 @@ private:
 	G4double secondStageDim;
 	G4double secondStageThickness;
 	G4double detectorThickness;
+	G4int pixelKinScoring;
 	G4bool usingPhantom;
 	G4bool multiSV;
 	G4double multiSVbreadth;

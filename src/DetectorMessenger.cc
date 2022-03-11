@@ -33,6 +33,7 @@
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithABool.hh"
+#include "G4UIcmdWithAnInteger.hh"
 
 #include "G4UIcmdWithoutParameter.hh"
 
@@ -100,6 +101,21 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeSecondStageThicknessCmd -> SetUnitCategory("Length");
 	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
 	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit);
+	
+	changeWaterPixelSettingsDir = new G4UIdirectory("/geometrySetup/setupWaterPixel/");
+	changeWaterPixelSettingsDir -> SetGuidance("Change settings specific to the water pixel");
+	
+	selectPixelKinScoringTypeCmd = new G4UIcmdWithAnInteger("/geometrySetup/setupWaterPixel/selectKinScoring", this);
+	selectPixelKinScoringTypeCmd -> SetGuidance("Set how the kinetic energy is scored:\n\
+													0 : no scoring\n\
+													1 : scored at the beginning (lowest depth) of the pixel\n\
+													2 : scored in the middle (just before the SV) of the pixel\n\
+													3 : UNIMPLEMENTED\n\
+													4 : beginning + UNIMPLEMENTED\n\
+													5 : middle + UNIMPLEMENTED");
+	selectPixelKinScoringTypeCmd -> SetParameterName("Method", false);
+	selectPixelKinScoringTypeCmd -> SetRange("Method >= 0 && Method <= 5");
+	selectPixelKinScoringTypeCmd -> AvailableForStates(G4State_PreInit);
 	
 	enableWaterPhantomCmd = new G4UIcmdWithABool("/geometrySetup/enableWaterPhantom", this);
 	enableWaterPhantomCmd -> SetGuidance("If true, the detector is placed inside a water phantom");
@@ -170,6 +186,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorThickness = 8.*um;
 	secondStageDim = 500.*um;
 	secondStageThickness = 500.*um;
+	pixelKinScoring = 0;
 	usingPhantom = false;	// used to crash the program if set to false under some conditions (why?)
 	multiSV = false;
 	multiSVbreadth = 5000*um;
@@ -190,6 +207,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeSecondStageSizeDimCmd;
 	delete changeSecondStageThicknessCmd;
 	delete changeDetectorSizeThicknessCmd;
+	delete selectPixelKinScoringTypeCmd;
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
 	delete changeMaximumBreadthForMultiSVCmd;
@@ -204,6 +222,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeDetectorDimensionDir;
 	delete changeTheGeometryDir;
 	delete changeDetectorSecondStageDir;
+	delete changeWaterPixelSettingsDir;
 	delete changeMultiSVSetupDir;
 	delete setCutsDir;
 }
@@ -286,6 +305,43 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Detector thickness changed to " << commandContent << G4endl;
 		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == selectPixelKinScoringTypeCmd )
+	{
+		pixelKinScoring = G4UIcmdWithAnInteger::GetNewIntValue(commandContent);
+		
+		G4cout << "Kinetic energy scoring set to ";
+		switch(pixelKinScoring)
+		{
+			case 0 :
+				G4cout << "no scoring";
+				break;
+			case 1 :
+				G4cout << "beginning";
+				break;
+			case 2 :
+				G4cout << "middle";
+				break;
+			case 3 :
+				G4cout << "UNIMPLEMENTED";
+				break;
+			case 4 :
+				G4cout << "beginning + UNIMPLEMENTED";
+				break;
+			case 5 :
+				G4cout << "middle + UNIMPLEMENTED";
+				break;
+		}
+		G4cout << G4endl;
+		
+		if( detectorType != "WaterPixel" )
+		{
+			G4cout << "WARNING: the detector type is currently set to " << detectorType << G4endl;
+			G4cout << "Unless this is changed to WaterPixel, the last command will be ignored" << G4endl;
+		}
 		
 		pendingChanges = true;
 	}

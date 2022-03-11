@@ -12,3 +12,4 @@ Afterwards, relevant microdosimetric quantities and sample RBE estimates can be 
 - multithreading with two-stage output has not been tested, and the eventID might not correspond properly
 - only MicroDiamond, WaterPixel, and Telescope are available, the other detectors are commented out (minimal changes are needed for them to work)
 - kinetic energy scoring currently only enabled for WaterPixel; it can be easily added to the other ones, if needed
+- TPS-like kinetic energy scoring across the whole water pixel to be added soon
