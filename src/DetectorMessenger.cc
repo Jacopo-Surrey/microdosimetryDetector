@@ -376,7 +376,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 	{
 		multiSVbreadth = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
 		
-		G4cout << "Breath along which SV are placed changed to " << commandContent << G4endl;
+		G4cout << "Breadth along which SV are placed changed to " << commandContent << G4endl;
 		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
 		if( multiSV == false )
 		{
