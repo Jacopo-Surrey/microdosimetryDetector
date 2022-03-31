@@ -59,7 +59,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorPositionDepthCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorPosition/setDepth", this);
 	changeDetectorPositionDepthCmd -> SetGuidance("Set the detector depth inside the water phantom");
 	changeDetectorPositionDepthCmd -> SetParameterName("Depth", false);
-	changeDetectorPositionDepthCmd -> SetRange("Depth >= 10. && Depth <= 1000.");
+	changeDetectorPositionDepthCmd -> SetRange("Depth >= 1. && Depth <= 1000.");
 	changeDetectorPositionDepthCmd -> SetUnitCategory("Length");
 	changeDetectorPositionDepthCmd -> SetDefaultUnit("mm");
 	changeDetectorPositionDepthCmd -> AvailableForStates(G4State_PreInit);
@@ -70,7 +70,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeDetectorSizeWidthCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorDimension/setWidth", this);
 	changeDetectorSizeWidthCmd -> SetGuidance("Set the width of the detector (DE stage in case of telescope detector)");
 	changeDetectorSizeWidthCmd -> SetParameterName("Width", false);
-	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 1000.");
+	changeDetectorSizeWidthCmd -> SetRange("Width >= 0.1 && Width <= 500000.");
 	changeDetectorSizeWidthCmd -> SetUnitCategory("Length");
 	changeDetectorSizeWidthCmd -> SetDefaultUnit("um");
 	changeDetectorSizeWidthCmd -> AvailableForStates(G4State_PreInit);
