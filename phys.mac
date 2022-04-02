@@ -2,4 +2,4 @@
 /cuts/custom/setCutsElsewhere 1 mm
 
 # region where the inner cut is applied
-/cuts/custom/setWidthAroundSV 0.5 mm
+/cuts/custom/setWidthAroundSV 1 mm
