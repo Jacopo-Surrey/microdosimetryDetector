@@ -152,7 +152,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeCutForRegionCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsAroundSV", this);
 	changeCutForRegionCmd -> SetGuidance("Set the cuts in the region around the SV");
 	changeCutForRegionCmd -> SetParameterName("Cut_SV", false);
-	changeCutForRegionCmd -> SetRange("Cut_SV >= 0.05 && Cut_SV <= 50.");
+	changeCutForRegionCmd -> SetRange("Cut_SV >= 0.001 && Cut_SV <= 50.");
 	changeCutForRegionCmd -> SetUnitCategory("Length");
 	changeCutForRegionCmd -> SetDefaultUnit("um");
 	changeCutForRegionCmd -> AvailableForStates(G4State_PreInit);
@@ -160,7 +160,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeCutForWorldCmd = new G4UIcmdWithADoubleAndUnit("/cuts/custom/setCutsElsewhere", this);
 	changeCutForWorldCmd -> SetGuidance("When using a water phantom, set the cuts farther away from the SV");
 	changeCutForWorldCmd -> SetParameterName("Cut_ext", false);
-	changeCutForWorldCmd -> SetRange("Cut_ext >= 0.1 && Cut_ext <= 1000.");
+	changeCutForWorldCmd -> SetRange("Cut_ext >= 0.001 && Cut_ext <= 1000.");
 	changeCutForWorldCmd -> SetUnitCategory("Length");
 	changeCutForWorldCmd -> SetDefaultUnit("um");
 	changeCutForWorldCmd -> AvailableForStates(G4State_PreInit);
