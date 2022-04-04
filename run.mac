@@ -6,5 +6,5 @@
 /control/execute gps_beam.mac
 /run/printProgress 100000
 #/random/setSeeds 1 1
-/run/custom/setRequiredCounts 100000
+/run/custom/setRequiredCounts 1000000
 /run/beamOn 1000000000000000
