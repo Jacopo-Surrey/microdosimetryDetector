@@ -19,3 +19,4 @@
 
 /geometrySetup/detectorPosition/setDepth 10 mm
 
+/geometrySetup/detectorPosition/setMicroDiamondAngle 0 deg

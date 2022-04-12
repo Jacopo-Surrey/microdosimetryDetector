@@ -68,8 +68,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	detectorSizeThickness = messenger -> GetDetectorSizeThickness();
 	secondStageSizeDim = messenger -> GetSecondStageSizeDim();
 	secondStageThickness = messenger -> GetSecondStageThickness();
-	//microDiamondAngle = messenger -> GetMicroDiamondAngle();	// MicroDiamond only
-	microDiamondAngle = 20.*deg;
+	microDiamondAngle = messenger -> GetMicroDiamondAngle();	// MicroDiamond only
+	//microDiamondAngle = 20.*deg;
 	pixelKinScoring = messenger -> GetPixelKinScoring();	// water pixel only
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();

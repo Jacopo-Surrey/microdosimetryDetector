@@ -60,6 +60,7 @@ public:
 	G4double GetDetectorSizeThickness() { return detectorThickness; }
 	G4double GetSecondStageSizeDim() { return secondStageDim; }
 	G4double GetSecondStageThickness() { return secondStageThickness; }
+	G4double GetMicroDiamondAngle() { return microDiamondAngle; }
 	G4int GetPixelKinScoring() { return pixelKinScoring; }
 	G4bool GetUsingPhantomBool() { return usingPhantom; }
 	G4bool GetMultiSVBool() { return multiSV; }
@@ -88,6 +89,7 @@ private:
 	G4UIcmdWithADoubleAndUnit *changeSecondStageSizeDimCmd;
 	G4UIcmdWithADoubleAndUnit *changeSecondStageThicknessCmd;
 	G4UIcmdWithADoubleAndUnit *changeDetectorSizeThicknessCmd;
+	G4UIcmdWithADoubleAndUnit *changeMicroDiamondAngleCmd;
 	G4UIcmdWithAnInteger *selectPixelKinScoringTypeCmd;
 	G4UIcmdWithABool *enableWaterPhantomCmd;
 	G4UIcmdWithABool *useMultipleSVCmd;
@@ -108,6 +110,7 @@ private:
 	G4double secondStageDim;
 	G4double secondStageThickness;
 	G4double detectorThickness;
+	G4double microDiamondAngle;
 	G4int pixelKinScoring;
 	G4bool usingPhantom;
 	G4bool multiSV;

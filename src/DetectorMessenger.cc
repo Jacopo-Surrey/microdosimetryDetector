@@ -102,6 +102,14 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	changeSecondStageThicknessCmd -> SetDefaultUnit("um");
 	changeSecondStageThicknessCmd -> AvailableForStates(G4State_PreInit);
 	
+	changeMicroDiamondAngleCmd = new G4UIcmdWithADoubleAndUnit("/geometrySetup/detectorPosition/setMicroDiamondAngle", this);
+	changeMicroDiamondAngleCmd -> SetGuidance("Set the angle of the detector compared to the beam (MicroDiamond detector only)");
+	changeMicroDiamondAngleCmd -> SetParameterName("Angle", false);
+	changeMicroDiamondAngleCmd -> SetRange("Angle >= 0. && Angle <= 180.");
+	changeMicroDiamondAngleCmd -> SetUnitCategory("Angle");
+	changeMicroDiamondAngleCmd -> SetDefaultUnit("deg");
+	changeMicroDiamondAngleCmd -> AvailableForStates(G4State_PreInit);
+	
 	changeWaterPixelSettingsDir = new G4UIdirectory("/geometrySetup/setupWaterPixel/");
 	changeWaterPixelSettingsDir -> SetGuidance("Change settings specific to the water pixel");
 	
@@ -186,6 +194,7 @@ DetectorMessenger::DetectorMessenger(AnalysisManager* analysis_manager)
 	detectorThickness = 8.*um;
 	secondStageDim = 500.*um;
 	secondStageThickness = 500.*um;
+	microDiamondAngle = 0.*deg;
 	pixelKinScoring = 0;
 	usingPhantom = false;	// used to crash the program if set to false under some conditions (why?)
 	multiSV = false;
@@ -207,6 +216,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete changeSecondStageSizeDimCmd;
 	delete changeSecondStageThicknessCmd;
 	delete changeDetectorSizeThicknessCmd;
+	delete changeMicroDiamondAngleCmd;
 	delete selectPixelKinScoringTypeCmd;
 	delete enableWaterPhantomCmd;
 	delete useMultipleSVCmd;
@@ -305,6 +315,15 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String commandConten
 		
 		G4cout << "Detector thickness changed to " << commandContent << G4endl;
 		//G4cout << "Run /geometrySetup/applyChanges to apply" << G4endl;
+		
+		pendingChanges = true;
+	}
+	
+	else if( command == changeMicroDiamondAngleCmd )
+	{
+		microDiamondAngle = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(commandContent);
+		
+		G4cout << "MicroDiamond angle changed to " << commandContent << G4endl;
 		
 		pendingChanges = true;
 	}
