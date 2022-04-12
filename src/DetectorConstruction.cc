@@ -51,8 +51,10 @@
 #include "G4GeometryTolerance.hh"
 #include "G4GeometryManager.hh"
 #include "G4SystemOfUnits.hh"
-
 #include "G4NistManager.hh"
+
+#include "G4RotationMatrix.hh"
+#include "G4Transform3D.hh"
 
 DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, DetectorMessenger* detector_messenger)
 {
@@ -66,6 +68,8 @@ DetectorConstruction::DetectorConstruction(AnalysisManager* analysis_manager, De
 	detectorSizeThickness = messenger -> GetDetectorSizeThickness();
 	secondStageSizeDim = messenger -> GetSecondStageSizeDim();
 	secondStageThickness = messenger -> GetSecondStageThickness();
+	//microDiamondAngle = messenger -> GetMicroDiamondAngle();	// MicroDiamond only
+	microDiamondAngle = 20.*deg;
 	pixelKinScoring = messenger -> GetPixelKinScoring();	// water pixel only
 	usingPhantom = messenger -> GetUsingPhantomBool();
 	multiSV = messenger -> GetMultiSVBool();
@@ -633,31 +637,53 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 	G4ThreeVector fePosition;
 	G4ThreeVector pDposition;
 	
+	// rotation matrix
+	G4RotationMatrix SVrot = G4RotationMatrix();
+	SVrot.rotateY(microDiamondAngle);
+	
+	G4double rot_box_thickness = SVthickness + pDthickness*2 + feThickness*2;
+	G4Box* detector_rot_box = new G4Box("rot_box", SVside, SVside, rot_box_thickness);
+	
+	G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+	
+	G4LogicalVolume* logical_rot_box = new G4LogicalVolume(detector_rot_box, water, "rot_log", 0,0,0);
+	
+	
 	if( nOfSV == 1 )
 	{
-		G4String PVName;
+		//G4String PVName;
 		
-		SVposition = {0., 0., SVposition_z};
-		fePosition = {0., 0., fePosition_z};
-		pDposition = {0., 0., pDposition_z};
+		//SVposition = {0., 0., SVposition_z};
+		//fePosition = {0., 0., fePosition_z};
+		//pDposition = {0., 0., pDposition_z};
 		
+		//PVName = "rot_box_phys"
+		
+		G4Transform3D transform = G4Transform3D(SVrot, SVposition);
+		
+		new G4PVPlacement(transform, logical_rot_box, "rot_box_phys",
+					logical_motherVolumeForDetector,
+					false, 0, checkOverlap);
+		
+		/*
 		// sensitive volume
 		PVName = "SV_phys";
 		new G4PVPlacement(0, SVposition, logical_SV, PVName,
-					logical_motherVolumeForDetector,
+					logical_rot_box,
 					false, 0, checkOverlap);
 		
 		// chromium front-electrode
 		PVName = "frontElec_phys";
 		new G4PVPlacement(0, fePosition, logical_fe, PVName,
-					logical_motherVolumeForDetector,
+					logical_rot_box,
 					false, 0, checkOverlap);
 		
 		// p-type diamond back-electrode
 		PVName = "pD_phys";
 		new G4PVPlacement(0, pDposition, logical_pD, PVName,
-					logical_motherVolumeForDetector,
+					logical_rot_box,
 					false, 0, checkOverlap);
+		*/
 	}
 	
 	else if( nOfSV > 1 )
@@ -666,6 +692,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 		
 		G4int volNo;		
 		G4double SVposition_x, SVposition_y;
+		G4Transform3D transform;
 		
 		G4double start_xy = -requiredWidth/2. + SVside;
 			// initial position (volume's centre) of every row and column
@@ -682,11 +709,21 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 			{
 				volNo = i*nOfSV +j +1;
 				
+				SVposition = {SVposition_x, SVposition_y, SVposition_z};
+				transform = G4Transform3D(SVrot, SVposition);
+				
+				PVName << "rot_box_phys_" << volNo ;
+				new G4PVPlacement(transform, logical_rot_box, PVName.str(),
+					logical_motherVolumeForDetector,
+					false, 0, checkOverlap);
+				PVName.str("");	//reset the string
+				
+				/*
 				// sensitive volume
 				PVName << "SV_phys_" << volNo ;
 				SVposition = {SVposition_x, SVposition_y, SVposition_z};
 				new G4PVPlacement(0, SVposition, logical_SV, PVName.str(),
-							logical_motherVolumeForDetector,
+							logical_rot_box,
 							false, 0, checkOverlap);
 				PVName.str("");	//reset the string
 				
@@ -694,7 +731,7 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 				PVName << "frontElec_phys_" << volNo;
 				fePosition = {SVposition_x, SVposition_y, fePosition_z};
 				new G4PVPlacement(0, fePosition, logical_fe, PVName.str(),
-							logical_motherVolumeForDetector,
+							logical_rot_box,
 							false, 0, checkOverlap);
 				PVName.str("");
 				
@@ -702,9 +739,10 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 				PVName << "pD_phys_" << volNo;
 				pDposition = {SVposition_x, SVposition_y, pDposition_z};
 				new G4PVPlacement(0, pDposition, logical_pD, PVName.str(),
-							logical_motherVolumeForDetector,
+							logical_rot_box,
 							false, 0, checkOverlap);
 				PVName.str("");
+				*/
 				
 				// next position
 				SVposition_x = SVposition_x + SVside*2. + SVspacing;
@@ -714,25 +752,52 @@ void DetectorConstruction::ConstructMicroDiamondDetector()
 			SVposition_y = SVposition_y + SVside*2. + SVspacing;
 		}
 	}
-
-	// HPHT diamond substrate (only one big substrate for simplicity)
-	G4double subs_x = (requiredWidth + 300.*um) /2.;
-	G4double subs_y = (requiredWidth + 300.*um) /2.; 
-	G4double sub_z = 300.*micrometer /2.; 
 	
-	G4Box* sub_box = new G4Box("sub_box", subs_x, subs_y, sub_z);
+	fePosition = {0., 0., fePosition_z};
+	pDposition = {0., 0., pDposition_z};
 	
-	G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
+	G4String PVName;
 	
-	G4ThreeVector subPosition = {0,0, SVthickness + 2.*pDthickness +sub_z};
+	// sensitive volume
+	PVName = "SV_phys";
+	new G4PVPlacement(0, {0., 0., 0.}, logical_SV, PVName,
+				logical_rot_box,
+				false, 0, checkOverlap);
 	
-	new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
-				logical_motherVolumeForDetector,
+	// chromium front-electrode
+	PVName = "frontElec_phys";
+	new G4PVPlacement(0, fePosition, logical_fe, PVName,
+				logical_rot_box,
+				false, 0, checkOverlap);
+	
+	// p-type diamond back-electrode
+	PVName = "pD_phys";
+	new G4PVPlacement(0, pDposition, logical_pD, PVName,
+				logical_rot_box,
 				false, 0, checkOverlap);
 
-	G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
-	subColour.SetForceSolid(false);
-	logical_sub -> SetVisAttributes(subColour);
+	
+	// HPHT diamond substrate (only one big substrate for simplicity)
+	if( microDiamondAngle == 0. )	// don't add it if the detector is rotated
+	{
+		G4double subs_x = (requiredWidth + 300.*um) /2.;
+		G4double subs_y = (requiredWidth + 300.*um) /2.; 
+		G4double sub_z = 300.*micrometer /2.; 
+		
+		G4Box* sub_box = new G4Box("sub_box", subs_x, subs_y, sub_z);
+		
+		G4LogicalVolume* logical_sub = new G4LogicalVolume(sub_box, diamond, "sub_log", 0,0,0);
+		
+		G4ThreeVector subPosition = {0,0, SVthickness + 2.*pDthickness +sub_z};
+		
+		new G4PVPlacement(0, subPosition, logical_sub, "sub_phys",
+					logical_motherVolumeForDetector,
+					false, 0, checkOverlap);
+
+		G4VisAttributes subColour(G4Colour(0.5, 0.5, 0.5));
+		subColour.SetForceSolid(false);
+		logical_sub -> SetVisAttributes(subColour);
+	}
 }
 
 
