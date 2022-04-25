@@ -9,7 +9,7 @@ Afterwards, relevant microdosimetric quantities and sample RBE estimates can be 
     python3 get_RBE.py
     
 ### Current issues:
-- due to some small changes necessary in main.cc, the program won't compile when using the latest version of Geant4. For the time being, use 10.5.x or 10.6.x instead
+- due to some small changes necessary in the AnalysisManager.hh, the program won't compile when using the latest version of Geant4. For the time being, use 10.5.x or 10.6.x instead, or fix said file by looking at its comments
 - multithreading with two-stage output has not been tested, and the eventID might not correspond properly
 - only MicroDiamond, WaterPixel, and Telescope are available, the other detectors are commented out (minimal changes are needed for them to work)
 - kinetic energy scoring currently only enabled for WaterPixel; it can be easily added to the other ones, if needed
