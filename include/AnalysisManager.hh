@@ -33,7 +33,7 @@
 
 #include "globals.hh"
 #include "g4csv.hh"	//comma separated values (output)
-	// if using the latest release of Geant4, replace g4csv.hh with #include G4AnalysisManager.hh
+	// if using the latest release of Geant4, replace g4csv.hh with G4AnalysisManager.hh
 
 // Define the total number of columns in the ntuple
 const G4int MaxNtCol = 10;
